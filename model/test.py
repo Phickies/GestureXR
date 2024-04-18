@@ -9,14 +9,14 @@ import numpy as np
 
 from model import QuartzClassifier
 from helper import convert_str_to_int
+from data import data_preprocess
 
 # Import scikit-learn
 from sklearn.model_selection import train_test_split
 
 pd.set_option('display.max_columns', None)
 
-df = pd.read_csv("../data/data_all_frame_csv/data.csv")
-df = convert_str_to_int(df)
+df = data_preprocess.get_data()
 
 print(df.head)
 print(df.dtypes)

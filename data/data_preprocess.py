@@ -27,5 +27,9 @@ def merge_csv_file(folder_path):
 
 
 if __name__ == "__main__":
-    big_data = merge_csv_file(data_unprocessed_path)
-    big_data.to_csv("data_all_frame_csv/data.csv", index=False)
+
+    # Merge all dataset into one big data
+    if not os.path.exists("data_all_frame_csv"):
+        os.makedirs("data_all_frame_csv")
+        big_data = merge_csv_file(data_unprocessed_path)
+        big_data.to_csv("data_all_frame_csv/data.csv", index=False)

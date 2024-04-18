@@ -11,6 +11,7 @@ Tuning HYPER-PARAMETERS should be in test.py file
 # Import system
 import os
 import math
+import numpy as np
 
 # Ensure reproducibility
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
@@ -30,7 +31,7 @@ import matplotlib.pyplot as plt
 class QuartzClassifier:
 
     def __init__(self, output_unit=3, drop_out_rate=0.5,
-                 learning_rate=0.001, n_epochs=10, n_batchs=16, prediction_threshold=0.5, model=None):
+                 learning_rate=0.001, n_epochs=20, n_batchs=16, prediction_threshold=0.5, model=None):
         """
         :type prediction_threshold: object
         :param output_unit: number of classification output
@@ -119,14 +120,15 @@ class QuartzClassifier:
         :rtype: tuple
         :return: accuracy score, recall score, precision score
         """
-        test_loss, test_accuracy = self.model.evaluate(X_test, y_test, batch_size=16, verbose=2)
+        test_loss, test_accuracy = self.model.evaluate(X_test, y_test, batch_size=self.n_batchs, verbose=2)
 
         print(f"Test lost: {test_loss}")
         print(f"Test accuracy: {test_accuracy}")
 
-        y_pred = self.model.predict(X_test, batch_size = 16,verbose = 2)
+        y_pred = self.model.predict(X_test, batch_size = self.n_batchs,verbose = 2)
 
         print(y_pred)
+        print(self.model.predict(np.expand_dims(X_test[0], axis=0))[0].argmax())
 
         # accuracy = accuracy_score(y_test, y_pred)
         # recall = recall_score(y_test, y_pred)
@@ -143,7 +145,7 @@ class QuartzClassifier:
             raise Exception("No training history found. Train the model first.")
 
         plt.plot(self.history.history['accuracy'], label='accuracy')
-        plt.plot(self.history.history['val_accuracy'], label='val_categorical_accuracy')
+        plt.plot(self.history.history['val_accuracy'], label='val_accuracy')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
         plt.ylim([0, 1])
@@ -179,6 +181,7 @@ class QuartzClassifier:
     def load_model(self, zip_path_name):
 
         self.model = saving.load_model(zip_path_name)
+        print("loaded model")
 
 
 if __name__ == "__main__":

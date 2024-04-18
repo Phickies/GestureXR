@@ -51,8 +51,6 @@ model.evaluate(X_test, y_test)
 model.plot_history()
 
 # Plot confusion matrix
-y_pred = model.model.predict(X_test)  # Assuming you have a test set ready
-model.plot_confusion_matrix(y_test, y_pred)
 
 # Save the model
 model.save_model()

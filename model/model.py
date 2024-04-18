@@ -50,6 +50,7 @@ class QuartzClassifier:
         self.model = model
         self.history = None
         self.cp_callback = None
+        self.y_pred = 0
 
     def initialize(self, input_shape):
         """
@@ -126,6 +127,10 @@ class QuartzClassifier:
         print(f"Test accuracy: {test_accuracy}")
 
         y_pred = self.model.predict(X_test, batch_size = self.n_batchs,verbose = 2)
+        print(y_pred)
+        y_pred = np.argmax(y_pred, axis=1)
+        self.y_pred = y_pred
+
 
         print(y_pred)
         print(self.model.predict(np.expand_dims(X_test[0], axis=0))[0].argmax())
@@ -153,14 +158,15 @@ class QuartzClassifier:
         plt.title('Training and Validation Accuracy')
         plt.show()
 
-    def plot_confusion_matrix(self, y_test, y_pred):
+    def plot_confusion_matrix(self,y_test):
         """
         plot_confusion matrix
         :param y_test: y_true
         :param y_pred: y_prediction
         :rtype: None
         """
-        cm = confusion_matrix(y_test, y_pred)
+        y_test = np.argmax(y_test, axis=1)
+        cm = confusion_matrix(y_test, self.y_pred)
         sns.heatmap(cm, annot=True, fmt='d', cmap='pink', xticklabels=range(self.output_unit),
                     yticklabels=range(self.output_unit))
         plt.xlabel('Predicted labels')

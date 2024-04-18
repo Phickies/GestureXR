@@ -28,10 +28,10 @@ def merge_csv_file(folder_path):
         if filename.endswith('.csv'):
             # Read the CSV file into a DataFrame
             file_path = os.path.join(folder_path, filename)
-            df = pd.read_csv(file_path)
+            dataframe = pd.read_csv(file_path)
 
             # Append the df to the list
-            df_list.append(df)
+            df_list.append(dataframe)
 
     # Concatenate all DataFrame in the list into one big DataFrame
     return pd.concat(df_list, ignore_index=True)

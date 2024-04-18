@@ -98,11 +98,7 @@ if __name__ == "__main__":
 
     # Get data
     df = pd.read_csv(output_path)
-    print("Converting string to int")
     df = convert_str_to_int(df)
-    print("Fixing separating value")
     df = fix_sep_value(df)
-    print("Fixing pinch2finger sep value")
     df = fix_add_sep_for_pinch2finger(df)
-    print(df.head())
     df.to_csv(output_path, index=False)

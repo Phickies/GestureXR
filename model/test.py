@@ -4,37 +4,29 @@ Testing area for Tuning HYPER-PARAMETER
 
 # Import module
 import os
-
 import pandas as pd
+import numpy as np
 
 from model import QuartzClassifier
-from helper import convert_tflite_to_c
+from helper import convert_str_to_int
 
 # Import scikit-learn
 from sklearn.model_selection import train_test_split
 
-import numpy as np
+pd.set_option('display.max_columns', None)
 
-data = pd.read_csv("../data/data_all_frame_csv/data.csv",)
+df = pd.read_csv("../data/data_all_frame_csv/data.csv")
+df = convert_str_to_int(df)
 
-df = data.copy()
-df2 = data.copy()
-# df = df.apply(pd.to_numeric, errors='ignore')
-# df2 = df2.apply(pd.to_numeric, errors='ignore')
-# df2.dropna(inplace=True)
-# df.dropna(inplace=True)
+print(df.head)
+print(df.dtypes)
 
-
-
-
-X = df.drop(['Timestamp','Sep','Label_fists','Label_pinch2finger','Label_pinch3finger','Label_release2finger','Label_release3finger'], axis = 1)
+X = df.drop(['Timestamp', 'Sep', 'Label'], axis=1)
 X = np.array(X)
-#X = np.float32(X)
 
 print(X)
-y = df2.drop(['Timestamp','Accel','Gyr','Sep','Label_fists'], axis = 1)
+y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
 y = np.array(y)
-y = np.float32(y)
 print(y)
 
 # X = np.random.random((1000, 20, 1))

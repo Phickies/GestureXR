@@ -28,7 +28,6 @@ try:
 
 
     def clean_and_join_numbers(data_str):
-        # 将字符串中的连字符 '-' 替换为空格，然后使用空格连接所有数字
         cleaned_numbers = ''.join(data_str.replace('-', ''))
         return cleaned_numbers
 

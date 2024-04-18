@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Quartz-.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/csv-editor.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data1.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data10.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data100.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data101.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data102.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data103.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data104.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data105.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data106.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data107.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data108.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data109.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data11.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data110.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data111.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data112.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data113.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data114.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data115.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data116.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data117.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data118.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data119.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data12.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data120.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data121.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data122.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data123.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data124.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data125.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data126.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data127.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data128.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data129.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data13.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data130.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data131.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data132.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data133.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data134.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data135.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data136.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data137.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data138.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data139.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data14.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data140.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data141.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data142.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data143.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data144.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data145.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data146.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data147.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data148.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data149.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data15.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data150.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data151.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data152.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data153.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data154.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data155.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data156.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data157.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data158.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data159.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data16.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data160.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data161.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data162.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data163.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data164.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data166.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data167.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data168.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data169.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data17.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data170.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data171.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data172.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data173.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data174.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data175.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data176.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data177.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data178.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data179.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data180.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data181.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data182.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data183.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data184.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data185.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data186.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data187.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data188.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data189.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data19.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data190.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data191.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data192.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data193.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data194.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data195.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data196.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data197.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data198.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data199.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data2.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data20.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data200.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data21.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data22.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data23.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data25.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data26.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data27.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data28.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data29.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data3.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data30.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data31.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data32.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data33.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data34.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data35.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data36.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data37.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data38.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data39.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data4.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data40.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data41.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data42.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data43.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data44.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data45.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data47.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data48.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data49.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data5.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data50.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data51.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data52.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data53.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data54.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data55.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data56.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data57.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data58.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data59.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data6.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data60.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data61.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data62.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data63.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data64.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data65.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data66.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data67.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data68.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data69.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data7.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data70.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data71.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data72.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data73.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data74.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data75.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data76.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data77.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data78.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data79.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data8.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data80.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data81.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data82.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data83.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data84.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data85.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data86.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data87.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data88.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data89.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data9.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data90.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data91.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data92.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data93.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data94.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data95.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data96.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data97.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data98.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collected_unprocessed/data99.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_collection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_preprocess.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/test.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Phickies"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Phickies/GestureXR.git",
+    "accountId": "cf8cbfb0-171e-4f2d-9fd1-8b17f876751b"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="2fIH7LP3vkPgDa8xhnD0RFbMt4Z" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.data_preprocess.executor": "Run",
+    "Python.test.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "settings.editor.selected.configurable": "editor.preferences.import"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-0509580d9d50-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.14494.241" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="" />
+      <created>1713481503884</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1713481503884</updated>
+    </task>
+    <servers />
+  </component>
+</project>

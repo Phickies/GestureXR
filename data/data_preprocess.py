@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 
 # Declare variable
 data_unprocessed_path = './data_collected_unprocessed/'
+data_all_frame_path = "./data_all_frame_csv/"
+
 
 def merge_csv_file(folder_path):
     # List to store individual DataFrame
@@ -29,7 +31,8 @@ def merge_csv_file(folder_path):
 if __name__ == "__main__":
 
     # Merge all dataset into one big data
-    if not os.path.exists("data_all_frame_csv"):
-        os.makedirs("data_all_frame_csv")
+    if not os.path.exists(data_all_frame_path):
+        os.makedirs(data_all_frame_path)
         big_data = merge_csv_file(data_unprocessed_path)
-        big_data.to_csv("data_all_frame_csv/data.csv", index=False)
+        output_path = os.path.join(data_all_frame_path, "data.csv")
+        big_data.to_csv(output_path, index=False)

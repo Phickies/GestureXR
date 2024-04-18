@@ -4,11 +4,9 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-
 # Declare variable
 data_unprocessed_path = './data_collected_unprocessed/'
 data_all_frame_path = "./data_all_frame_csv/"
-
 
 # Config panda
 pd.set_option('display.max_columns', None)
@@ -54,17 +52,57 @@ def convert_str_to_int(dataframe):
     return dataframe
 
 
+def fix_sep_value(dataframe):
+    """
+    Fix the duplicate True value, switching back to False.
+    :param dataframe: df need to change
+    :return: pd DataFrame
+    """
+    # Find the indices where 'Sep' is True
+    true_indices = df.index[df['Sep'] == True]
+
+    # Iterate over the indices and update the value of 'Sep' to False for adjacent True values
+    for idx in range(len(true_indices) - 1):
+        if true_indices[idx + 1] - true_indices[idx] == 1:
+            df.at[true_indices[idx + 1], 'Sep'] = False
+    return dataframe
+
+
+def fix_add_sep_for_pinch2finger(dataframe):
+    """
+    Fix the dataframe by adding a True sep for each pinch2finger
+    :param dataframe: df need to change
+    :return: pd DataFrame
+    """
+    # Find the indices where the label is 'pinch2finger'
+    pinch2finger_indices = dataframe.index[dataframe['Label'] == 'pinch2finger']
+
+    # Iterate over the indices and update the value of 'Sep' to True only for the first occurrence
+    for idx in pinch2finger_indices:
+        # Check if the index is greater than 0 and the previous row's label is not 'pinch2finger'
+        if idx > 0 and dataframe.at[idx - 1, 'Label'] != 'pinch2finger':
+            dataframe.at[idx, 'Sep'] = True
+
+    return dataframe
+
+
 if __name__ == "__main__":
 
-    # Merge all dataset into one big data
+    # Merge all dataset into one big data, and preprocessing the data
+    print("Merging dataset")
     output_path = os.path.join(data_all_frame_path, "data.csv")
     if not os.path.exists(data_all_frame_path):
         os.makedirs(data_all_frame_path)
         big_data = merge_csv_file(data_unprocessed_path)
-        big_data = convert_str_to_int(big_data)
         big_data.to_csv(output_path, index=False)
 
     # Get data
     df = pd.read_csv(output_path)
-
-
+    print("Converting string to int")
+    df = convert_str_to_int(df)
+    print("Fixing separating value")
+    df = fix_sep_value(df)
+    print("Fixing pinch2finger sep value")
+    df = fix_add_sep_for_pinch2finger(df)
+    print(df.head())
+    df.to_csv(output_path, index=False)

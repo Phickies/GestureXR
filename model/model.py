@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 class QuartzClassifier:
 
     def __init__(self, output_unit=3, drop_out_rate=0.5,
-                 learning_rate=0.001, n_epochs=10, n_batchs=16, prediction_threshold=0.5, model=None):
+                 learning_rate=0.01, n_epochs=20, n_batchs=64, prediction_threshold=0.5, model=None):
         """
         :type prediction_threshold: object
         :param output_unit: number of classification output

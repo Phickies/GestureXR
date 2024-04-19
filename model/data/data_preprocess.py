@@ -59,7 +59,7 @@ def merge_csv_file(folder_path):
 
             dataframe.loc[0, "Sep"] = True
             # Data Encoding one hot encoding
-            dataframe= pd.get_dummies(dataframe, columns=['Label'],dtype= float)
+
 
             # Append the df to the list
             df_list.append(dataframe)
@@ -111,6 +111,7 @@ def get_data():
     df = convert_str_to_int(df)
     print("Fix sep value")
     df = fix_sep_value(df)
+    df = pd.get_dummies(df, columns=['Label'], dtype=float)
     print("Done preprocessing data")
     return df
 

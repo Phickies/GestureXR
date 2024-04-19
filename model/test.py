@@ -21,7 +21,7 @@ print(df.head)
 print(df.dtypes)
 
 print("Start convert data")
-X = df.drop(['Timestamp', 'Sep', 'Label'], axis=1)
+X = df.drop(['Timestamp', 'Sep'], axis=1)
 total = []
 for index, row in X.iterrows():
     twoD_list = [row['Accel'], row['Gyr']]
@@ -59,7 +59,7 @@ X_val, y_val = drop_remain(X_val, y_val)
 
 # Create an instance of the classifier
 
-model = QuartzClassifier(output_unit=4, n_batchs=16)
+model = QuartzClassifier(output_unit=5, n_batchs=16)
 
 # Initialize and train the model (assuming X and y are already defined and preprocessed)
 model.initialize(input_shape=X_test.shape[1:])

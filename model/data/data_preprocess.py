@@ -57,6 +57,8 @@ def merge_csv_file(folder_path):
             dataframe = pd.read_csv(file_path)
 
             dataframe.loc[0, "Sep"] = True
+            # Data Encoding one hot encoding
+            dataframe= pd.get_dummies(dataframe, columns=['Label'],dtype= float)
 
             # Append the df to the list
             df_list.append(dataframe)

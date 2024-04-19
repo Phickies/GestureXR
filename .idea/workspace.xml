@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Fixing data">
+    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Done preprocessing data">
       <change afterPath="$PROJECT_DIR$/model/previews" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/data/data_collected_unprocessed/data3.csv - Shortcut.lnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/data/data_preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/data/data_preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +101,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713485530273</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1713487957209</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1713487957209</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -124,6 +128,7 @@
     <MESSAGE value="Add function to change the dataset from string to int" />
     <MESSAGE value="Relocating data files" />
     <MESSAGE value="Fixing data" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixing data" />
+    <MESSAGE value="Done preprocessing data" />
+    <option name="LAST_COMMIT_MESSAGE" value="Done preprocessing data" />
   </component>
 </project>

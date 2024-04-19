@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Relocating data files">
-      <change afterPath="$PROJECT_DIR$/.idea/csv-editor.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/data/data_collected_unprocessed/data3.csv - Shortcut.lnk" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/testing_data" afterDir="false" />
+    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Fixing data">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/data/data_preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/data/data_preprocess.py" afterDir="false" />
     </list>
@@ -89,7 +85,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713482811936</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Fixing data">
+      <option name="closed" value="true" />
+      <created>1713485481129</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1713485481129</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -107,6 +111,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Add function to change the dataset from string to int" />
     <MESSAGE value="Relocating data files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Relocating data files" />
+    <MESSAGE value="Fixing data" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixing data" />
   </component>
 </project>

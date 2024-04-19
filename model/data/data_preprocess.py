@@ -104,7 +104,6 @@ def fix_add_sep_for_pinch2finger(dataframe):
 def get_data():
     print("Merge dataset")
     df = merge_csv_file(data_unprocessed_path)
-    df.to_csv("testing_data",index=False)
     print("Removed NaN and duplicated")
     df = df.dropna()
     df = df.drop_duplicates()

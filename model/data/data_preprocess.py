@@ -100,6 +100,7 @@ def fix_sep_value(dataframe):
 
 
 def get_data():
+
     print("Merge dataset")
     df = merge_csv_file(data_unprocessed_path)
     print("Removed NaN and duplicated")

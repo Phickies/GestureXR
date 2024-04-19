@@ -66,6 +66,7 @@ model = QuartzClassifier(output_unit=5, n_batchs=64)
 model.initialize(input_shape=X_test.shape[1:])
 model.train(X_train, X_val, y_train, y_val)
 
+
 # Evaluate the model
 model.evaluate(X_test, y_test)
 model.mouse()

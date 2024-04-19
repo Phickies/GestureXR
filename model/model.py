@@ -118,6 +118,7 @@ class QuartzClassifier:
 
     def mouse(self):
 
+
         if self.gesture == 0:
             mouse.wheel(10)
         elif self.gesture == 1:

@@ -14,6 +14,7 @@ csv_file_path = 'python1.csv'
 file = open(csv_file_path, "w", newline='')
 csv_writer = csv.writer(file)
 
+
 try:
     # Write CSV header with Timestamp, sensor data, label and sep columns
     csv_header = ["Timestamp", "data",

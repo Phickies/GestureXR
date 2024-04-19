@@ -18,7 +18,7 @@ def convert_string_to_list(string):
     :param string:
     :return: list of integer
     """
-    int_list = [int(item) for item in string.strip("[]").strip("'").split("', ' ")]
+    int_list = [int(item) for item in string.strip("[']").split("', ' ")]
     return int_list
 
 
@@ -107,7 +107,6 @@ def get_data():
     print("Fix sep value")
     df = fix_sep_value(df)
     print("Done preprocessing data")
-    df.to_csv("previews", index=False)
     return df
 
 

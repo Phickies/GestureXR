@@ -20,25 +20,42 @@ df = data_preprocess.get_data()
 print(df.head)
 print(df.dtypes)
 
+print("Start convert data")
 X = df.drop(['Timestamp', 'Sep', 'Label'], axis=1)
-X = np.array(X)
-
+total = []
+for index, row in X.iterrows():
+    twoD_list = [row['Accel'], row['Gyr']]
+    total.append(twoD_list)
+X = np.array(total)
 print(X)
+
 y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
 y = np.array(y)
 print(y)
 
 
 # Create test set
+print("Start splitting data set")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
-X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
-X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+# X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
+# X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
 print(X_train.shape, X_val.shape, X_test.shape)
 
-# X_train, y_train = drop_remain(X_train, y_train)
-# X_test, y_test = drop_remain(X_test, y_test)
-# X_val, y_val = drop_remain(X_val, y_val)
+
+def drop_remain(a, b):
+    remain = a.__len__() % 16
+    if remain == 0:
+        return a, b
+    else:
+        a = a[:-remain, :, :]
+        b = b[:-remain]
+        return a, b
+
+
+X_train, y_train = drop_remain(X_train, y_train)
+X_test, y_test = drop_remain(X_test, y_test)
+X_val, y_val = drop_remain(X_val, y_val)
 
 # Create an instance of the classifier
 

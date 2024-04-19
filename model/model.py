@@ -12,6 +12,7 @@ Tuning HYPER-PARAMETERS should be in test.py file
 import os
 import math
 import numpy as np
+import mouse
 
 # Ensure reproducibility
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
@@ -31,7 +32,7 @@ import matplotlib.pyplot as plt
 class QuartzClassifier:
 
     def __init__(self, output_unit=3, drop_out_rate=0.5,
-                 learning_rate=0.001, n_epochs=20, n_batchs=16, prediction_threshold=0.5, model=None):
+                 learning_rate=0.001, n_epochs=10, n_batchs=16, prediction_threshold=0.5, model=None):
         """
         :type prediction_threshold: object
         :param output_unit: number of classification output
@@ -51,6 +52,7 @@ class QuartzClassifier:
         self.history = None
         self.cp_callback = None
         self.y_pred = 0
+        self.gesture = 0
 
     def initialize(self, input_shape):
         """
@@ -114,6 +116,19 @@ class QuartzClassifier:
             callbacks=self.cp_callback
         )
 
+    def mouse(self):
+
+        if self.gesture == 0:
+            mouse.wheel(10)
+        elif self.gesture == 1:
+            mouse.wheel(-10)
+        elif self.gesture == 2:
+            mouse.click('left')
+        elif self.gesture == 3:
+            mouse.click('right')
+        elif self.gesture == 4:
+            mouse.move(150,150)
+
     def evaluate(self, X_test, y_test):
         """
         Evaluate model, print test lost, test accuracy
@@ -131,10 +146,9 @@ class QuartzClassifier:
         print(y_pred)
         y_pred = np.argmax(y_pred, axis=1)
         self.y_pred = y_pred
-
-
+        self.gesture = self.model.predict(np.expand_dims(X_test[0], axis=0))[0].argmax()
         print(y_pred)
-        print(self.model.predict(np.expand_dims(X_test[0], axis=0))[0].argmax())
+        print(self.gesture)
 
         # accuracy = accuracy_score(y_test, y_pred)
         # recall = recall_score(y_test, y_pred)
@@ -189,6 +203,8 @@ class QuartzClassifier:
 
         self.model = saving.load_model(zip_path_name)
         print("loaded model")
+
+
 
 
 if __name__ == "__main__":

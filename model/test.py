@@ -68,6 +68,7 @@ model.train(X_train, X_val, y_train, y_val)
 
 # Evaluate the model
 model.evaluate(X_test, y_test)
+model.mouse()
 
 
 # Plot training history
@@ -78,3 +79,4 @@ model.plot_confusion_matrix(y_test)
 
 # Save the model
 model.save_model()
+

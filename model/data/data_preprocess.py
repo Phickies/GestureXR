@@ -77,6 +77,8 @@ def convert_str_to_int(dataframe):
     # Convert string values in lists to integers
     dataframe.Accel = dataframe.Accel.apply(lambda x: convert_string_to_list(x))
     dataframe.Gyr = dataframe.Gyr.apply(lambda x: convert_string_to_list(x))
+    dataframe.Accel = dataframe.Accel.apply(lambda x: np.array(x))
+    dataframe.Gyr = dataframe.Gyr.apply(lambda x: np.array(x))
 
     return dataframe
 

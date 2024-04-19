@@ -1,0 +1,118 @@
+Index: model/test.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\r\nTesting area for Tuning HYPER-PARAMETER\r\n\"\"\"\r\n\r\n# Import module\r\nimport os\r\nimport pandas as pd\r\nimport numpy as np\r\n\r\nfrom model import QuartzClassifier\r\nfrom data import data_preprocess\r\n\r\n# Import scikit-learn\r\nfrom sklearn.model_selection import train_test_split\r\n\r\npd.set_option('display.max_columns', None)\r\n\r\ndf = data_preprocess.get_data()\r\n\r\nprint(df.head)\r\nprint(df.dtypes)\r\n\r\nX = df.drop(['Timestamp', 'Sep', 'Label'], axis=1)\r\nX = np.array(X)\r\n\r\nprint(X)\r\ny = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)\r\ny = np.array(y)\r\nprint(y)\r\n\r\n\r\n# Create test set\r\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)\r\nX_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)\r\nX_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))\r\nX_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))\r\nprint(X_train.shape, X_val.shape, X_test.shape)\r\n\r\n# X_train, y_train = drop_remain(X_train, y_train)\r\n# X_test, y_test = drop_remain(X_test, y_test)\r\n# X_val, y_val = drop_remain(X_val, y_val)\r\n\r\n# Create an instance of the classifier\r\n\r\nmodel = QuartzClassifier(output_unit=4, n_batchs=16)\r\n\r\n# Initialize and train the model (assuming X and y are already defined and preprocessed)\r\nmodel.initialize(input_shape=X_test.shape[1:])\r\nmodel.train(X_train, X_val, y_train, y_val)\r\n\r\n# Evaluate the model\r\nmodel.evaluate(X_test, y_test)\r\n\r\n\r\n# Plot training history\r\nmodel.plot_history()\r\n\r\n# Plot confusion matrix\r\nmodel.plot_confusion_matrix(y_test)\r\n\r\n# Save the model\r\nmodel.save_model()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/model/test.py b/model/test.py
+--- a/model/test.py	(revision 5bcf8c969a32b0d9c36517e4b7656823d35b010f)
++++ b/model/test.py	(date 1713491227512)
+@@ -21,7 +21,7 @@
+ print(df.dtypes)
+ 
+ X = df.drop(['Timestamp', 'Sep', 'Label'], axis=1)
+-X = np.array(X)
++X = np.array()
+ 
+ print(X)
+ y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
+Index: model/data/data_preprocess.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import ast\r\nimport os\r\nimport pandas as pd\r\nimport numpy as np\r\n\r\nimport matplotlib.pyplot as plt\r\n\r\n# Declare variable\r\ndata_unprocessed_path = 'data/data_collected_unprocessed/'\r\n\r\n# Config panda\r\npd.set_option('display.max_columns', None)\r\n\r\n\r\ndef convert_string_to_list(string):\r\n    \"\"\"\r\n    Convert string into list\r\n    :param string:\r\n    :return: list of integer\r\n    \"\"\"\r\n    int_list = [int(item) for item in string.strip(\"[]\").strip(\"'\").split(\"', ' \")]\r\n    return int_list\r\n\r\n\r\ndef removed_error_data(dataframe):\r\n    \"\"\"\r\n    Removed row contains invalid value\r\n    :param dataframe:\r\n    :return: pandas DataFrame\r\n    \"\"\"\r\n    a = \"Error collecting data on middle finger\"\r\n    b = \"Error collecting data on thumb finger\"\r\n    c = \"Error collecting data on index finger\"\r\n    d = \"'-1',' -1',' -1'\"\r\n    dataframe = dataframe[~(dataframe.Accel.str.contains(a)) | (dataframe.Gyr.str.contains(a))]\r\n    dataframe = dataframe[~(dataframe.Accel.str.contains(b)) | (dataframe.Gyr.str.contains(b))]\r\n    dataframe = dataframe[~(dataframe.Accel.str.contains(c)) | (dataframe.Gyr.str.contains(c))]\r\n    dataframe = dataframe[~(dataframe.Accel.str.contains(d)) | (dataframe.Gyr.str.contains(d))]\r\n    dataframe = dataframe[~(dataframe.Accel.str.contains(\"Average sensor values\"))]\r\n    return dataframe\r\n\r\n\r\ndef merge_csv_file(folder_path):\r\n    \"\"\"\r\n    Merge all data collected into one big data frame\r\n    :param folder_path: input folder\r\n    :return: pandas DataFrame\r\n    \"\"\"\r\n    # List to store individual DataFrame\r\n    df_list = []\r\n\r\n    # Iterate over each file in the folder\r\n    for filename in os.listdir(folder_path):\r\n        if filename.endswith('.csv'):\r\n            # Read the CSV file into a DataFrame\r\n            file_path = os.path.join(folder_path, filename)\r\n            dataframe = pd.read_csv(file_path)\r\n\r\n            dataframe.loc[0, \"Sep\"] = True\r\n\r\n            # Append the df to the list\r\n            df_list.append(dataframe)\r\n\r\n    # Concatenate all DataFrame in the list into one big DataFrame\r\n    return pd.concat(df_list, ignore_index=True)\r\n\r\n\r\ndef convert_str_to_int(dataframe):\r\n    \"\"\"\r\n    Convert the value in the Accel and Gyr from list of string to list of int\r\n    :param dataframe: df need to change\r\n    :return: pandas DataFrame\r\n    \"\"\"\r\n    # Convert string values in lists to integers\r\n    dataframe.Accel = dataframe.Accel.apply(lambda x: convert_string_to_list(x))\r\n    dataframe.Gyr = dataframe.Gyr.apply(lambda x: convert_string_to_list(x))\r\n\r\n    return dataframe\r\n\r\n\r\ndef fix_sep_value(dataframe):\r\n    \"\"\"\r\n    Fix the duplicate True value, switching back to False.\r\n    :param dataframe: df need to change\r\n    :return: pandas DataFrame\r\n    \"\"\"\r\n    # Find the indices where 'Sep' is True\r\n    true_indices = dataframe.index[dataframe.Sep == True]\r\n\r\n    # Iterate over the indices and update the value of 'Sep' to False for adjacent True values\r\n    for idx in range(len(true_indices) - 1):\r\n        if true_indices[idx + 1] - true_indices[idx] == 1:\r\n            dataframe.at[true_indices[idx + 1], 'Sep'] = False\r\n    return dataframe\r\n\r\n\r\ndef get_data():\r\n    print(\"Merge dataset\")\r\n    df = merge_csv_file(data_unprocessed_path)\r\n    print(\"Removed NaN and duplicated\")\r\n    df = df.dropna()\r\n    df = df.drop_duplicates()\r\n    print(\"Removed Error data\")\r\n    df = removed_error_data(df)\r\n    print(\"Convert str to int\")\r\n    df = convert_str_to_int(df)\r\n    print(\"Fix sep value\")\r\n    df = fix_sep_value(df)\r\n    print(\"Done preprocessing data\")\r\n    df.to_csv(\"previews\", index=False)\r\n    return df\r\n\r\n\r\nif __name__ == \"__main__\":\r\n    pass\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/model/data/data_preprocess.py b/model/data/data_preprocess.py
+--- a/model/data/data_preprocess.py	(revision 5bcf8c969a32b0d9c36517e4b7656823d35b010f)
++++ b/model/data/data_preprocess.py	(date 1713491002587)
+@@ -74,6 +74,8 @@
+     # Convert string values in lists to integers
+     dataframe.Accel = dataframe.Accel.apply(lambda x: convert_string_to_list(x))
+     dataframe.Gyr = dataframe.Gyr.apply(lambda x: convert_string_to_list(x))
++    dataframe.Accel = dataframe.Accel.apply(lambda x: np.array(x))
++    dataframe.Gyr = dataframe.Gyr.apply(lambda x: np.array(x))
+ 
+     return dataframe
+ 
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"Black\">\r\n    <option name=\"sdkName\" value=\"Pipenv (GestureXR)\" />\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Pipenv (GestureXR)\" project-jdk-type=\"Python SDK\" />\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 5bcf8c969a32b0d9c36517e4b7656823d35b010f)
++++ b/.idea/misc.xml	(date 1713488329430)
+@@ -3,5 +3,5 @@
+   <component name="Black">
+     <option name="sdkName" value="Pipenv (GestureXR)" />
+   </component>
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (GestureXR)" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/GestureXR.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<module type=\"PYTHON_MODULE\" version=\"4\">\r\n  <component name=\"NewModuleRootManager\">\r\n    <content url=\"file://$MODULE_DIR$\" />\r\n    <orderEntry type=\"inheritedJdk\" />\r\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\r\n  </component>\r\n  <component name=\"PyDocumentationSettings\">\r\n    <option name=\"format\" value=\"NUMPY\" />\r\n    <option name=\"myDocStringFormat\" value=\"NumPy\" />\r\n  </component>\r\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/GestureXR.iml b/.idea/GestureXR.iml
+--- a/.idea/GestureXR.iml	(revision 5bcf8c969a32b0d9c36517e4b7656823d35b010f)
++++ b/.idea/GestureXR.iml	(date 1713488329441)
+@@ -2,7 +2,7 @@
+ <module type="PYTHON_MODULE" version="4">
+   <component name="NewModuleRootManager">
+     <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
++    <orderEntry type="jdk" jdkName="Python 3.12" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+   <component name="PyDocumentationSettings">
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"VcsDirectoryMappings\">\r\n    <mapping directory=\"$PROJECT_DIR$\" vcs=\"Git\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+--- a/.idea/vcs.xml	(revision 5bcf8c969a32b0d9c36517e4b7656823d35b010f)
++++ b/.idea/vcs.xml	(date 1713488329447)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="VcsDirectoryMappings">
+-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++    <mapping directory="" vcs="Git" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"19ddb3ba-9f8e-442b-b181-f8d4a8f757d9\" name=\"Changes\" comment=\"Done preprocessing data\">\r\n      <change afterPath=\"$PROJECT_DIR$/model/previews\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.gitignore\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gitignore\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;Phickies&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/Phickies/GestureXR.git&quot;,\r\n    &quot;accountId&quot;: &quot;cf8cbfb0-171e-4f2d-9fd1-8b17f876751b&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;customColor&quot;: &quot;&quot;,\r\n  &quot;associatedIndex&quot;: 7\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2fIH7LP3vkPgDa8xhnD0RFbMt4Z\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,\r\n    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;Python.data_preprocess.executor&quot;: &quot;Run&quot;,\r\n    &quot;Python.test.executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\r\n    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.import&quot;\r\n  }\r\n}</component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-python-sdk-0509580d9d50-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.14494.241\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"19ddb3ba-9f8e-442b-b181-f8d4a8f757d9\" name=\"Changes\" comment=\"\" />\r\n      <created>1713481503884</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1713481503884</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"Relocating data files\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1713482763751</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1713482763751</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"Relocating data files\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1713482811936</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1713482811936</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"Fixing data\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1713485481129</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1713485481129</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"Fixing data\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1713485530273</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1713485530273</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"Done preprocessing data\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1713487957209</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1713487957209</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"6\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\r\n    <MESSAGE value=\"Add function to change the dataset from string to int\" />\r\n    <MESSAGE value=\"Relocating data files\" />\r\n    <MESSAGE value=\"Fixing data\" />\r\n    <MESSAGE value=\"Done preprocessing data\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Done preprocessing data\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 5bcf8c969a32b0d9c36517e4b7656823d35b010f)
++++ b/.idea/workspace.xml	(date 1713514735131)
+@@ -5,8 +5,11 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Done preprocessing data">
+-      <change afterPath="$PROJECT_DIR$/model/previews" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/GestureXR.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GestureXR.iml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/model/data/data_preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/data/data_preprocess.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/model/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/test.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />

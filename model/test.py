@@ -8,7 +8,6 @@ import pandas as pd
 import numpy as np
 
 from model import QuartzClassifier
-from helper import convert_str_to_int
 from data import data_preprocess
 
 # Import scikit-learn
@@ -28,18 +27,6 @@ print(X)
 y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
 y = np.array(y)
 print(y)
-
-# X = np.random.random((1000, 20, 1))
-# y = np.random.randint(2, size=(1000, 3))
-
-# def drop_remain(X,y):
-#     remain = X.__len__() % 16
-#     if remain == 0:
-#         return X,y
-#     else:
-#         X = X[:-remain, :, :]
-#         y = y[:-remain]
-#         return X,y
 
 
 # Create test set

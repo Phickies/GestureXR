@@ -1,4 +1,3 @@
-import ast
 import numpy as np
 import math
 
@@ -85,20 +84,3 @@ def convert_tflite_to_c(tflite_path: str = 'model.tflite', model_name: str = 'mo
 
     # Return the name of the generated header file.
     return model_name + '.h'
-
-
-def convert_str_to_int(dataframe):
-    """
-    Convert the value in the Accel and Gyr from list of string to list of int
-    :param dataframe: df need to change
-    :return: panda DataFrame
-    """
-    # Removed invalid data, duplicated data
-    dataframe.dropna(inplace=True)
-    dataframe.drop_duplicates(inplace=True)
-
-    # Convert string values in lists to integers
-    dataframe.Accel = dataframe.Accel.apply(ast.literal_eval)
-    dataframe.Gyr = dataframe.Gyr.apply(ast.literal_eval)
-
-    return dataframe

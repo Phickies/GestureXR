@@ -100,6 +100,7 @@ class QuartzClassifier:
         :param verbose: showing progress
         :rtype: None
         """
+
         if self.model is None:
             raise Exception("Model has not been initialized. Call initialize_model() first.")
 

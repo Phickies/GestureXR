@@ -49,6 +49,7 @@ def merge_csv_file(folder_path):
     # List to store individual DataFrame
     df_list = []
 
+
     # Iterate over each file in the folder
     for filename in os.listdir(folder_path):
         if filename.endswith('.csv'):

@@ -53,6 +53,7 @@ def drop_remain(a, b):
         return a, b
 
 
+
 X_train, y_train = drop_remain(X_train, y_train)
 X_test, y_test = drop_remain(X_test, y_test)
 X_val, y_val = drop_remain(X_val, y_val)

@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 import keyboard
 
+
 # Open serial port for receiving data from Arduino
 # ser = serial.Serial('COM6', 921600, timeout=1)
 ser = serial.Serial('COM7', 921600, timeout=1)

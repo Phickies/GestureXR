@@ -6,78 +6,108 @@ Testing area for Tuning HYPER-PARAMETER
 import os
 import pandas as pd
 import numpy as np
+import keyboard
 
 from model import QuartzClassifier
 from data import data_preprocess
 
-# Import scikit-learn
 from sklearn.model_selection import train_test_split
 
-pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_columns', None)
+#
+# df = data_preprocess.get_data()
+#
+# print(df.head)
+# print(df.dtypes)
+#
+# print("Start convert data")
+#
+# X = df.drop(['Timestamp', 'Sep'], axis=1)
+# total = []
+# for index, row in X.iterrows():
+#     twoD_list = [row['Accel'], row['Gyr']]
+#     total.append(twoD_list)
+# X = np.array(total)
+# print(X)
+#
+# y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
+# y = np.array(y)
+# print(y)
+#
+# # Create test set
+# print("Start splitting data set")
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
+# X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
+# # X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
+# # X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+# print(X_train.shape, X_val.shape, X_test.shape)
+#
+#
+# def drop_remain(a, b):
+#     remain = a.__len__() % 128
+#     if remain == 0:
+#         return a, b
+#     else:
+#         a = a[:-remain, :, :]
+#         b = b[:-remain]
+#         return a, b
 
-df = data_preprocess.get_data()
 
-print(df.head)
-print(df.dtypes)
-
-print("Start convert data")
-X = df.drop(['Timestamp', 'Sep'], axis=1)
-total = []
-for index, row in X.iterrows():
-    twoD_list = [row['Accel'], row['Gyr']]
-    total.append(twoD_list)
-X = np.array(total)
-print(X)
-
-y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
-y = np.array(y)
-print(y)
-
-
-# Create test set
-print("Start splitting data set")
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
-# X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
-# X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
-print(X_train.shape, X_val.shape, X_test.shape)
-
-
-def drop_remain(a, b):
-    remain = a.__len__() % 64
+def drop_1(a):
+    remain = a.__len__() % 128
     if remain == 0:
-        return a, b
+        return a
     else:
         a = a[:-remain, :, :]
-        b = b[:-remain]
-        return a, b
+        return a,
 
 
+# X_train, y_train = drop_remain(X_train, y_train)
+# X_test, y_test = drop_remain(X_test, y_test)
+# X_val, y_val = drop_remain(X_val, y_val)
+#
+# # Create an instance of the classifier
+#
+# model = QuartzClassifier(output_unit=5, n_batchs=128)
+#
+# # Initialize and train the model (assuming X and y are already defined and preprocessed)
+# model.initialize(input_shape=X_test.shape[1:])
+# model.train(X_train, X_val, y_train, y_val)
+#
+# # Evaluate the model
+# model.evaluate(X_test, y_test)
+# model.mouse()
+#
+# # Plot training history
+# model.plot_history()
+#
+# # Plot confusion matrix
+# model.plot_confusion_matrix(y_test)
+#
+# # Save the model
+# model.save_model()
 
-X_train, y_train = drop_remain(X_train, y_train)
-X_test, y_test = drop_remain(X_test, y_test)
-X_val, y_val = drop_remain(X_val, y_val)
+model = QuartzClassifier()
+model.load_model("quartz_model.keras")
 
-# Create an instance of the classifier
-
-model = QuartzClassifier(output_unit=5, n_batchs=64)
-
-# Initialize and train the model (assuming X and y are already defined and preprocessed)
-model.initialize(input_shape=X_test.shape[1:])
-model.train(X_train, X_val, y_train, y_val)
-
-
-# Evaluate the model
-model.evaluate(X_test, y_test)
-model.mouse()
-
-
-# Plot training history
-model.plot_history()
-
-# Plot confusion matrix
-model.plot_confusion_matrix(y_test)
-
-# Save the model
-model.save_model()
-
+count = 1
+while count == 1:
+    model.collect()
+    df2 = data_preprocess.data_new()
+    X2 = df2
+    total2 = []
+    for index, row in X2.iterrows():
+        twoD_list = [row['Accel'], row['Gyr']]
+        total2.append(twoD_list)
+    X2 = np.array(total2)
+    # drop_1(X2)
+    print(X2)
+    y_pred = model.model.predict(X2[0:1], batch_size=128, verbose=2)
+    # print(y_pred)
+    # y_pred = np.argmax(y_pred, axis=1)
+    # gesture = model.model.predict(np.expand_dims(X2[0], axis=0))[0].argmax()
+    print(y_pred)
+    # print(gesture)
+    if keyboard.is_pressed('3'):
+        count = 0
+        break

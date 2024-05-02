@@ -13,6 +13,10 @@ import os
 import math
 import numpy as np
 import mouse
+import serial
+import csv
+from datetime import datetime
+import keyboard
 
 # Ensure reproducibility
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
@@ -31,8 +35,8 @@ import matplotlib.pyplot as plt
 
 class QuartzClassifier:
 
-    def __init__(self, output_unit=3, drop_out_rate=0.5,
-                 learning_rate=0.01, n_epochs=20, n_batchs=64, prediction_threshold=0.5, model=None):
+    def __init__(self, output_unit=3, drop_out_rate=0.6,
+                 learning_rate=0.01, n_epochs=20, n_batchs=128, prediction_threshold=0.5, model=None):
         """
         :type prediction_threshold: object
         :param output_unit: number of classification output
@@ -63,14 +67,14 @@ class QuartzClassifier:
         self.model = models.Sequential([
             layers.Input(shape=input_shape, batch_size=self.n_batchs),
             layers.LSTM(units=128, stateful=True, return_sequences=True),
-            layers.LSTM(units=64, stateful=True, return_sequences=True),
+            layers.LSTM(units=128, stateful=True, return_sequences=True),
             layers.LSTM(units=64, stateful=True, return_sequences=False),
-            layers.Dense(units=32, activation='relu'),
+            layers.Dense(units=32,activation='sigmoid'),
             layers.Dropout(self.drop_out_rate),
             layers.Dense(self.output_unit, activation='softmax')
         ])
 
-        self.model.compile(optimizer=optimizers.SGD(learning_rate=self.learning_rate),
+        self.model.compile(optimizer='adam',
                            loss=losses.CategoricalCrossentropy(),
                            metrics=['accuracy'])
 
@@ -114,10 +118,94 @@ class QuartzClassifier:
             shuffle=False,
             verbose=verbose,
             callbacks=self.cp_callback
+
         )
 
-    def mouse(self):
 
+    def collect(self):
+        # Open serial port for receiving data from Arduino
+        # ser = serial.Serial('COM6', 921600, timeout=1)
+        ser = serial.Serial('COM5', 921600, timeout=1)
+
+        # Create a CSV file
+        csv_file_path = 'data/data290.csv'
+
+        # Open file for data logging+
+        file = open(csv_file_path, "w", newline='')
+        csv_writer = csv.writer(file)
+
+        try:
+            # Write CSV header with Timestamp, sensor data, label and sep columns
+            csv_header = ["Timestamp", "Accel", "Gyr", "Label", "Sep"]
+            csv_writer.writerow(csv_header)
+
+            # Initialize label and previous sign
+            labels = ["fists", "release2finger", "pinch3finger", "release3finger"]  # List of possible labels
+            label_index = 0  # Index for cycling through labels
+            current_label = labels[label_index]
+            sep = False  # Initial sep value
+
+            def clean_and_join_numbers(data_str):
+                # 将字符串中的连字符 '-' 替换为空格，然后使用空格连接所有数字
+                cleaned_numbers = ''.join(data_str.replace('-', ''))
+                return cleaned_numbers
+            count = 1
+            while count == 1:
+                data_row = []
+                # Read data from Arduino
+                # for _ in range(3):
+                line = ser.readline().decode().strip()
+                # print(line)
+                data = line.strip("'").split("\t\t")
+                data = line.split(",")
+                # print(data)
+                # data_row = [clean_and_join_numbers(data_str) for data_str in line]
+                # print(data_row)
+                numbers = [num for num in data]
+
+                # 将数字列表按照每个子列表包含9个数字的方式进行重组
+                result = [numbers[i:i + 9] for i in range(0, len(numbers), 9)]
+                print(result)
+                print(len(result))
+
+                # if len(data) == 1:
+                #     data_row.extend(data)
+                # print(data_row)
+
+                # if len(result) == 2:  # Ensure we have exactly 6 sensor values
+                # Get current timestamp1
+                current_timestamp = datetime.now().strftime('%H:%M:%S.%f')
+                # Check keyboard input to set sep and current_label
+                if keyboard.is_pressed('4'):
+                    current_label = labels[3]
+                    sep = False
+                    count = 0
+                    break
+                # elif keyboard.is_pressed('5'):
+                #     current_label = labels[4]
+                #     sep = True
+                else:
+                    sep = False
+
+                # Write data to CSV file along with label and sep
+                # print(data_row)
+                # print(data_row)
+                csv_writer.writerow([current_timestamp] + result + [current_label, sep])
+
+
+
+        except serial.SerialException as e:
+            print(f"Serial communication error: {e}")
+
+        finally:
+            # Close serial port
+            ser.close()
+
+            # Close file and save data to CSV
+            file.close()
+            print("Data saved to", csv_file_path)
+
+    def mouse(self):
 
         if self.gesture == 0:
             mouse.wheel(10)
@@ -128,7 +216,19 @@ class QuartzClassifier:
         elif self.gesture == 3:
             mouse.click('right')
         elif self.gesture == 4:
-            mouse.move(150,150)
+            mouse.move(150, 150)
+
+    def predict(self,X):
+        y_pred = self.model.predict(X, batch_size=self.n_batchs, verbose=2)
+        print(y_pred)
+        y_pred = np.argmax(y_pred, axis=1)
+        self.y_pred = y_pred
+        self.gesture = self.model.predict(np.expand_dims(X[0], axis=0))[0].argmax()
+        print(y_pred)
+        print(self.gesture)
+        return self.gesture
+
+
 
     def evaluate(self, X_test, y_test):
         """
@@ -143,7 +243,7 @@ class QuartzClassifier:
         print(f"Test lost: {test_loss}")
         print(f"Test accuracy: {test_accuracy}")
 
-        y_pred = self.model.predict(X_test, batch_size = self.n_batchs,verbose = 2)
+        y_pred = self.model.predict(X_test, batch_size=self.n_batchs, verbose=2)
         print(y_pred)
         y_pred = np.argmax(y_pred, axis=1)
         self.y_pred = y_pred
@@ -174,7 +274,7 @@ class QuartzClassifier:
         plt.title('Training and Validation Accuracy')
         plt.show()
 
-    def plot_confusion_matrix(self,y_test):
+    def plot_confusion_matrix(self, y_test):
         """
         plot_confusion matrix
         :param y_test: y_true
@@ -204,8 +304,6 @@ class QuartzClassifier:
 
         self.model = saving.load_model(zip_path_name)
         print("loaded model")
-
-
 
 
 if __name__ == "__main__":

@@ -84,3 +84,48 @@ def convert_tflite_to_c(tflite_path: str = 'model.tflite', model_name: str = 'mo
 
     # Return the name of the generated header file.
     return model_name + '.h'
+
+
+def convert_dataframe_to_array(dataframe):
+    """
+    Convert dataframe to numpy array
+
+    Parameters
+    ----------
+    dataframe : pandas DataFrame
+
+    Returns
+    -------
+    Numpy Array
+
+    """
+    total = []
+    for index, row in dataframe.iterrows():
+        two_d_list = [row['Accel'], row['Gyr']]
+        total.append(two_d_list)
+    return np.array(total)
+
+
+def drop_remain(a, b):
+    """
+
+    Parameters
+    ----------
+    a: numpy array
+        Training set
+    b: numpy array
+        Label set
+
+    Returns
+    -------
+    a, b: tuple
+        Training and Label set with stripped value to fit with database
+
+    """
+    remain = a.__len__() % 64
+    if remain == 0:
+        return a, b
+    else:
+        a = a[:-remain, :, :]
+        b = b[:-remain]
+        return a, b

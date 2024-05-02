@@ -1,9 +1,5 @@
-import ast
 import os
 import pandas as pd
-import numpy as np
-
-import matplotlib.pyplot as plt
 
 # Declare variable
 data_unprocessed_path = 'data/data_collected_unprocessed/'
@@ -112,24 +108,6 @@ def get_data():
     df = pd.get_dummies(df, columns=['Label'], dtype=float)
     print("Done preprocessing data")
     return df
-
-
-def data_new():
-    print("Merge dataset")
-    df2 = pd.read_csv('data/data290.csv')
-    print("Removed NaN and duplicated")
-    df2 = df2.dropna()
-    df2 = df2.drop_duplicates()
-    print("Removed Error data")
-    df2 = removed_error_data(df2)
-    print("Convert str to int")
-    df2 = convert_str_to_int(df2)
-    print("Fix sep value")
-    df2 = fix_sep_value(df2)
-    df2.drop(['Timestamp', 'Sep','Label'], axis=1)
-    print("Done preprocessing data")
-    df2.to_csv('live.csv')
-    return df2
 
 
 if __name__ == "__main__":

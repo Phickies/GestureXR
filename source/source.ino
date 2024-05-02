@@ -43,7 +43,7 @@
 
 #define ACC_RANGE BMI2_ACC_RANGE_16G  // 16G
 #define ACC_ODR BMI2_ACC_ODR_1600HZ   // 1600Hz
-#define ACC_BWP BMI2_ACC_RES_AVG128  // Normal
+#define ACC_BWP BMI2_ACC_NORMAL_AVG4  // Normal
 
 #define GYRO_RANGE BMI2_GYR_RANGE_2000  // 2000dps
 #define GYRO_ODR BMI2_GYR_ODR_3200HZ    // 3200Hz
@@ -52,11 +52,11 @@
 #define FILTER_MODE BMI2_PERF_OPT_MODE  // Performance mode
 
 #define INT_PIN 4
-#define SDA_1_PIN 5
-#define SCL_1_PIN 6
-#define SDA_2_PIN 1
-#define SCL_2_PIN 2
-#define TOUCH_PIN 9
+#define SDA_1_PIN 13
+#define SCL_1_PIN 12
+#define SDA_2_PIN 11
+#define SCL_2_PIN 14
+#define TOUCH_PIN 1
 
 int touch_val = 0;
 
@@ -71,14 +71,14 @@ BMI270 imu_thumb_f;
 bmi2_sens_config accelConfig;
 bmi2_sens_config gyroConfig;
 
-// Seting global variable
+// Setting global variable
 unsigned long waitingTimeBeforePowerDown = 30000;  // 30 seconds
 unsigned long delayTimeForwaiting = 0;
 unsigned long startTime = 0;
 
 // I2C address selection
 uint8_t i2cAddress1 = BMI2_I2C_PRIM_ADDR;  // 0x68
-uint8_t i2cAddress2 = BMI2_I2C_SEC_ADDR;   // 0x69
+uint8_t i2cAddress2 = BMI2_I2C_SEC_ADDR;  // 0x69
 
 // Flag to know when interrupts occur
 volatile bool interruptOccurred = false;
@@ -86,162 +86,24 @@ volatile bool interruptOccurred = false;
 TwoWire i2c1 = TwoWire(0);
 TwoWire i2c2 = TwoWire(1);
 
+
+
 void handleInterrupt() {
   interruptOccurred = true;
 }
 
-void printAverageSensorValues() {
-  // Variables to store the sum of each sensor axis
-  float accXSum_middle_f = 0;
-  float accYSum_middle_f = 0;
-  float accZSum_middle_f = 0;
-
-  float gyrXSum_middle_f = 0;
-  float gyrYSum_middle_f = 0;
-  float gyrZSum_middle_f = 0;
-
-  float accXSum_index_f = 0;
-  float accYSum_index_f = 0;
-  float accZSum_index_f = 0;
-
-  float gyrXSum_index_f = 0;
-  float gyrYSum_index_f = 0;
-  float gyrZSum_index_f = 0;
-
-  float accXSum_thumb_f = 0;
-  float accYSum_thumb_f = 0;
-  float accZSum_thumb_f = 0;
-
-  float gyrXSum_thumb_f = 0;
-  float gyrYSum_thumb_f = 0;
-  float gyrZSum_thumb_f = 0;
-
-  // Collect 50 measurements at 50Hz
-  int numSamples = 50;
-  for (int i = 0; i < numSamples; i++) {
-    // Get measurements from the sensor
-    imu_middle_f.getSensorData();
-
-    // Add this measurement to the running total
-    // middle finger
-    accXSum_middle_f += imu_middle_f.data.accelX;
-    accYSum_middle_f += imu_middle_f.data.accelY;
-    accZSum_middle_f += imu_middle_f.data.accelZ;
-
-    gyrXSum_middle_f += imu_middle_f.data.gyroX;
-    gyrYSum_middle_f += imu_middle_f.data.gyroY;
-    gyrZSum_middle_f += imu_middle_f.data.gyroZ;
-
-    //index finger
-    //Get measurements from the sensor
-    imu_index_f.getSensorData();
-    accXSum_index_f += imu_index_f.data.accelX;
-    accYSum_index_f += imu_index_f.data.accelY;
-    accZSum_index_f += imu_index_f.data.accelZ;
-
-    gyrXSum_index_f += imu_index_f.data.gyroX;
-    gyrYSum_index_f += imu_index_f.data.gyroY;
-    gyrZSum_index_f += imu_index_f.data.gyroZ;
-
-    // thumb finger
-    // Get measurements from the sensor
-    imu_thumb_f.getSensorData();
-    accXSum_thumb_f += imu_thumb_f.data.accelX;
-    accYSum_thumb_f += imu_thumb_f.data.accelY;
-    accZSum_thumb_f += imu_thumb_f.data.accelZ;
-
-    gyrXSum_thumb_f += imu_thumb_f.data.gyroX;
-    gyrYSum_thumb_f += imu_thumb_f.data.gyroY;
-    gyrZSum_thumb_f += imu_thumb_f.data.gyroZ;
-
-    // Wait for next measurement
-    delay(20);
-  }
-
-  // Print acceleration data
-  Serial.print(1);
-  Serial.print("\t");
-  Serial.print("X: ");
-  Serial.print(accXSum_middle_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Y: ");
-  Serial.print(accYSum_middle_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Z: ");
-  Serial.print(accZSum_middle_f / numSamples, 3);
-
-  Serial.print("\t");
-
-  // Print rotation data
-  Serial.print("\t");
-  Serial.print("X: ");
-  Serial.print(gyrXSum_middle_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Y: ");
-  Serial.print(gyrYSum_middle_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Z: ");
-  Serial.println(gyrZSum_middle_f / numSamples, 3);
-
-  Serial.print(2);
-  Serial.print("\t");
-  Serial.print("X: ");
-  Serial.print(accXSum_index_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Y: ");
-  Serial.print(accYSum_index_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Z: ");
-  Serial.print(accZSum_index_f / numSamples, 3);
-
-  Serial.print("\t");
-
-  // Print rotation data
-  Serial.print("\t");
-  Serial.print("X: ");
-  Serial.print(gyrXSum_index_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Y: ");
-  Serial.print(gyrYSum_index_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Z: ");
-  Serial.println(gyrZSum_index_f / numSamples, 3);
-
-  Serial.print(3);
-  Serial.print("\t");
-  Serial.print("X: ");
-  Serial.print(accXSum_thumb_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Y: ");
-  Serial.print(accYSum_thumb_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Z: ");
-  Serial.print(accZSum_thumb_f / numSamples, 3);
-
-  Serial.print("\t");
-
-  // Print rotation data
-  Serial.print("\t");
-  Serial.print("X: ");
-  Serial.print(gyrXSum_thumb_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Y: ");
-  Serial.print(gyrYSum_thumb_f / numSamples, 3);
-  Serial.print("\t");
-  Serial.print("Z: ");
-  Serial.println(gyrZSum_thumb_f / numSamples, 3);
-}
 
 void setup() {
   // Start serial
   Serial.begin(921600);
 
   // Initialize the I2C library
-  i2c1.begin(SDA_2_PIN, SCL_2_PIN, COM_RATE);
-  i2c2.begin(SDA_1_PIN, SCL_1_PIN, COM_RATE);
+  i2c1.begin(SDA_2_PIN, SCL_2_PIN);
+  i2c2.begin(SDA_1_PIN, SCL_1_PIN);
 
-  while (imu_middle_f.beginI2C(i2cAddress1, i2c2) != BMI2_OK) {
-    Serial.println(imu_middle_f.beginI2C(i2cAddress1, i2c2));
+
+  while (imu_middle_f.beginI2C(i2cAddress1, i2c1) != BMI2_OK) {
+    Serial.println(imu_middle_f.beginI2C(i2cAddress1, i2c1));
     // Not connected, inform user
     Serial.println("Error: BMI270 in the middle finger is not connected, error code is printed aboved!");
 
@@ -250,8 +112,8 @@ void setup() {
   }
   Serial.println("BMI270 in middle finger is connected!");
 
-  while (imu_index_f.beginI2C(i2cAddress2, i2c2) != BMI2_OK) {
-    Serial.println(imu_index_f.beginI2C(i2cAddress2, i2c2));
+  while (imu_index_f.beginI2C(i2cAddress1, i2c2) != BMI2_OK) {
+    Serial.println(imu_index_f.beginI2C(i2cAddress1, i2c2));
     // Not connected, inform user
     Serial.println("Error: BMI270 in index finger is not connected, error code is printed aboved!");
 
@@ -260,8 +122,8 @@ void setup() {
   }
   Serial.println("BMI270 in the index finger is connected!");
 
-  while (imu_thumb_f.beginI2C(i2cAddress1, i2c1) != BMI2_OK) {
-    Serial.println(imu_thumb_f.beginI2C(i2cAddress1, i2c1));
+  while (imu_thumb_f.beginI2C(i2cAddress2, i2c2) != BMI2_OK) {
+    Serial.println(imu_thumb_f.beginI2C(i2cAddress2, i2c2));
     // Not connected, inform user
     Serial.println("Error: BMI270 in thumb finger is not connected,  error code is printed aboved!");
 
@@ -341,22 +203,12 @@ void setup() {
 
   // Calibration
   Serial.println("Place the sensor on a flat surface and leave it stationary.");
-
-  delay(1000);
-
-
-  // Add a function for user to self calibration.
+  // Serial.println("Enter any key to begin calibration.");
 
   // // Throw away any previous inputs
   // while (Serial.available() != 0) { Serial.read(); }
   // // Wait for user input
   // while (Serial.available() == 0) {}
-
-  Serial.println();
-  Serial.println("Average sensor values before calibration:");
-  printAverageSensorValues();
-  Serial.println("Start Calibration process, please hold your device stationary, DO NOT MOVE IT");
-  delay(3000);
 
   // Perform component retrim for the gyroscope. According to the datasheet,
   // the gyroscope has a typical error of 2%, but running the CRT can reduce
@@ -382,14 +234,42 @@ void setup() {
   imu_index_f.performGyroOffsetCalibration();
   imu_thumb_f.performGyroOffsetCalibration();
 
-  Serial.println("Calibration complete!");
-  Serial.println("Average sensor values after calibration:");
-  printAverageSensorValues();
+  // // Throw away any previous inputs
+  // while (Serial.available() != 0) { Serial.read(); }
+  // // Wait for user input
+  // while (Serial.available() == 0) {}
 
-  delay(1000);
+  // // Check to see if user wants to save values to NVM
+  // if (Serial.read() == 'Y') {
+  //   Serial.println();
+  //   Serial.println("!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!");
+  //   Serial.println();
+  //   Serial.println("The BMI270's NVM only supports 14 write cycles TOTAL!");
+  //   Serial.println("Are you sure you want to save to the NVM? If so, enter 'Y' again");
+
+  //   // Throw away any previous inputs
+  //   while (Serial.available() != 0) { Serial.read(); }
+  //   // Wait for user input
+  //   while (Serial.available() == 0) {}
+
+  //   // Check to see if user really wants to save values to NVM
+  //   if (Serial.read() == 'Y') {
+  //     // Save NVM contents
+  //     int8_t err = imu_middle_f.saveNVM();
+
+  //     // Check to see if the NVM saved successfully
+  //     if (err == BMI2_OK) {
+  //       Serial.println();
+  //       Serial.println("Calibration values have been saved to the NVM!");
+  //     } else {
+  //       Serial.print("Error saving to NVM, error code: ");
+  //       Serial.println(err);
+  //     }
+  //   }
+  // }
   Serial.println("Calibration done! Start collecting data!");
 
-  delay(100);
+  delay(1);
 
   // Setting up the waitingTime
   delayTimeForwaiting = esp_timer_get_time();
@@ -405,13 +285,12 @@ void loop() {
   touch_val = digitalRead(TOUCH_PIN);
 
   if (touch_val == 1) {
-
-    // Read Sensor Data from the middle
     while (imu_middle_f.getSensorData() != BMI2_OK) {
       Serial.println(imu_middle_f.getSensorData());
       Serial.print("Error collecting data on middle finger");
     }
     // Print acceleration data
+    // Serial.print("AX: ");
     Serial.print(imu_middle_f.data.accelX);
     Serial.print(", ");
     Serial.print(imu_middle_f.data.accelY);
@@ -426,8 +305,6 @@ void loop() {
     Serial.print(", ");
     Serial.print(imu_middle_f.data.gyroZ);
 
-
-    // Read Sensor Data from the index
     while (imu_index_f.getSensorData() != BMI2_OK) {
       Serial.println(imu_index_f.getSensorData());
       Serial.print("Error collecting data on index finger");
@@ -448,13 +325,10 @@ void loop() {
     Serial.print(", ");
     Serial.print(imu_index_f.data.gyroZ);
 
-
-    // Read Sensor Data from the thumb
     while (imu_thumb_f.getSensorData() != BMI2_OK) {
       Serial.println(imu_thumb_f.getSensorData());
       Serial.print("Error collecting data on thumb finger");
     }
-    // Print acceleration data
     Serial.print(", ");
     Serial.print(imu_thumb_f.data.accelX);
     Serial.print(", ");
@@ -483,5 +357,5 @@ void loop() {
   // the sensor data, otherwise it will never update
   // if (interruptOccurred) {
 
-  // interruptOccurred = false;
+  // interruptOccurred = false;
 }

@@ -13,6 +13,7 @@ matplotlib = "*"
 seaborn = "*"
 serial = "*"
 keyboard = "*"
+mouse = "*"
 
 [dev-packages]
 

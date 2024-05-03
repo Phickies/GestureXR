@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include <WiFi.h>
 #include "SparkFun_BMI270_Arduino_Library.h"
 #include "Sensor_Information.h"
 
@@ -24,6 +25,7 @@
 
 #define FILTER_MODE BMI2_PERF_OPT_MODE  // Performance mode
 
+
 /* 
   Class finger to abstract IMU and data in each finger
   Attribute:
@@ -41,7 +43,7 @@
     void serialPrintQuaternion();
   */
 class Finger {
-  public:
+public:
 
   volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;
 
@@ -106,14 +108,11 @@ class Finger {
     Gyroscope offset resolution: 0.061 deg/sec
   */
   void calibrateSensor() {
-    Serial.print("Performing component retrimming for ");
-    Serial.println(this->name);
+    Serial.println("Performing component retrimming for " + this->name);
     this->imu.performComponentRetrim();
-    Serial.print("Performing acclerometer offset calibration for ");
-    Serial.println(this->name);
+    Serial.println("Performing acclerometer offset calibration for " + this->name);
     this->imu.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
-    Serial.print("Performing gyroscope offset calibration for ");
-    Serial.println(this->name);
+    Serial.println("Performing gyroscope offset calibration for " + this->name);
     this->imu.performGyroOffsetCalibration();
   }
 
@@ -272,13 +271,14 @@ private:
     y = y * (1.5f - (halfx * y * y));
     return y;
   }
-
-
 };
 
 //-----------------------------------------
 //          Main function
 //-----------------------------------------
+
+const char* ssid = "Meme_2.4G";
+const char* password = "DankMemesOnly";
 
 struct bmi2_sens_config accelConfig;
 struct bmi2_sens_config gyroConfig;
@@ -288,6 +288,9 @@ struct bmi2_int_pin_config interruptConfig;
 volatile bool interruptOccurred = false;
 uint8_t touchVal = 0;
 
+WiFiServer server(80);
+WiFiClient client;
+
 TwoWire i2cBus1 = TwoWire(0);
 TwoWire i2cBus2 = TwoWire(1);
 
@@ -295,11 +298,27 @@ Finger middleFinger("Middle");
 Finger indexFinger("Index");
 Finger thumbFinger("Thumb");
 
+
 void setup() {
 
   // Start serial
   Serial.begin(921600);
   Serial.println("GestureXR start");
+
+  // Initialize WiFi Communication
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Establishing Server
+  server.begin();
+  Serial.println("Wifi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  delay(2000);
 
   // Initialize the I2C library
   i2cBus1.begin(SDA_2_PIN, SCL_2_PIN);
@@ -320,6 +339,8 @@ void setup() {
   attachInterrupt(INT_PIN, handleInterrupt, RISING);
 
   // Calibrating Sensor
+  Serial.println("Gesture XR config done");
+  delay(1000);
   Serial.println("Place the sensor on a flat surface and leave it stationary.");
   middleFinger.calibrateSensor();
   indexFinger.calibrateSensor();
@@ -332,29 +353,56 @@ void setup() {
 }
 
 void loop() {
+  // Handshaking protocol with client
+  WiFiClient client = server.available();
 
-  touchVal = digitalRead(TOUCH_PIN);
-
-  if (touchVal) {
-    middleFinger.getRawData();
-    indexFinger.getRawData();
-    thumbFinger.getRawData();
-    middleFinger.fileDataAHSR(400, 0.1);
-    indexFinger.fileDataAHSR(400, 0.1);
-    thumbFinger.fileDataAHSR(400, 0.1);
-    middleFinger.serialPrintQuaternion();
-    indexFinger.serialPrintQuaternion();
-    thumbFinger.serialPrintQuaternionEnd();
+  if (!client) {
+    return;
   }
+
+  // Wait until the client sends some data
+  Serial.println("Client Connected");
+  while (!client.available()) {
+    delay(1);
+  }
+
+  // Read the first line of the request
+  String request = client.readStringUntil('\r');
+  Serial.println(request);
+  client.flush();
+
+  while (true) {
+
+    touchVal = digitalRead(TOUCH_PIN);
+
+    if (touchVal) {
+      middleFinger.getRawData();
+      indexFinger.getRawData();
+      thumbFinger.getRawData();
+      middleFinger.fileDataAHSR(400, 0.1);
+      indexFinger.fileDataAHSR(400, 0.1);
+      thumbFinger.fileDataAHSR(400, 0.1);
+      String middleString = String(middleFinger.q0) + "," + String(middleFinger.q1) + "," + String(middleFinger.q2) + "," + String(middleFinger.q3) + ",";
+      String indexString = String(indexFinger.q0) + "," + String(indexFinger.q1) + "," + String(indexFinger.q2) + "," + String(indexFinger.q3) + ",";
+      String thumbString = String(thumbFinger.q0) + "," + String(thumbFinger.q1) + "," + String(thumbFinger.q2) + "," + String(thumbFinger.q3);
+      client.println(middleString + indexString + thumbString);
+    }
+  }
+
+  client.stop();
+  Serial.println("Client disconnected!");
 }
 
 //-----------------------------------------
 //          Helper function
 //-----------------------------------------
 
+
+// hander Interrupt pin
 void handleInterrupt() {
   interruptOccurred = true;
 }
+
 
 // Setup configuration for Accel Sensor
 bmi2_sens_config& setConfigAccel(bmi2_sens_config* accelConfig) {
@@ -366,6 +414,7 @@ bmi2_sens_config& setConfigAccel(bmi2_sens_config* accelConfig) {
   return *accelConfig;
 }
 
+
 // Setup configuration for Gyro Sensor
 bmi2_sens_config& setConfigGyro(bmi2_sens_config* gyroConfig) {
   gyroConfig->type = BMI2_GYRO;
@@ -376,6 +425,7 @@ bmi2_sens_config& setConfigGyro(bmi2_sens_config* gyroConfig) {
   gyroConfig->cfg.gyr.noise_perf = FILTER_MODE;
   return *gyroConfig;
 }
+
 
 // Setup configuration for Interupt Pin Sensor
 bmi2_int_pin_config& setConfigInterupt(bmi2_int_pin_config* intConfig) {

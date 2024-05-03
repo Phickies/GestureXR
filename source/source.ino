@@ -48,27 +48,26 @@ public:
   Finger(const String& name)
     : name(name), acceleration({ 0, 0, 0 }), velocity({ 0, 0, 0 }), position({ 0, 0, 0 }), rotateSpeed({ 0, 0, 0 }){};
 
-  // Intergrate gyroValue
-  float intergrateGyroValue(int16_t gyroValue, float dt) {
-    return gyroValue * dt;
+  // Intergarte value
+  float integrate(float value, float dt) {
+    return value * dt;
   }
 
-  // Intergarte accelValue
-  float intergrateAccelValue(int16_t accelValue, float dt) {
-    return accelValue * dt;
+  // Set velocity through integration acceleration
+  void setVelocity(float dt) {
+    this->velocity.x = this->integrate(this->acceleration.x, dt);
+    this->velocity.y = this->integrate(this->acceleration.y, dt);
+    this->velocity.z = this->integrate(this->acceleration.z, dt);
   }
 
-  void setPosition() {
+  void setPosition(float dt) {
+    this->position.x = this->integrate(this->velocity.x, dt);
+    this->position.y = this->integrate(this->velocity.y, dt);
+    this->position.z = this->integrate(this->velocity.z, dt);
   }
 
-  // Return the Vector3 position value (x, y, z)
-  Vector3 getPosition() {
-    return this->position;
-  }
+  void convertToPosition(){
 
-  // Return the Vector3 velocity value (x, y, z)
-  Vector3 getVelocity() {
-    return this->velocity;
   }
 
   // Setup I2C port and establish connection with the IMU sensor
@@ -164,6 +163,14 @@ public:
     Serial.print(", ");
     Serial.println(this->rotateSpeed.z);
   }
+
+  void serialPrintPosition() {
+    Serial.print(this->position.x);
+    Serial.print(", ");
+    Serial.print(this->position.y);
+    Serial.print(", ");
+    Serial.println(this->position.z);
+  }
 };
 
 //-----------------------------------------
@@ -227,11 +234,7 @@ void loop() {
 
   if (touchVal) {
     middleFinger.getRawData();
-    // indexFinger.getRawData();
-    // thumbFinger.getRawData();
     middleFinger.serialPrintRawData();
-    // indexFinger.serialPrintRawData();
-    // thumbFinger.serialPrintRawData();
     delay(DT * 1000);
   }
 }

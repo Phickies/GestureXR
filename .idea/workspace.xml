@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Adding Doc String.">
-      <change afterPath="$PROJECT_DIR$/model/wifi_connect.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Finish adding Communication with Arduino through Wifi" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -98,7 +94,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1713481503884</updated>
-      <workItem from="1714698401527" duration="15950000" />
+      <workItem from="1714698401527" duration="16268000" />
     </task>
     <task id="LOCAL-00001" summary="Relocating data files">
       <option name="closed" value="true" />
@@ -244,7 +240,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714712871281</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Finish adding Communication with Arduino through Wifi">
+      <option name="closed" value="true" />
+      <created>1714728610314</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1714728610314</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -272,7 +276,8 @@
     <MESSAGE value="Fixing source.ino, add Finger Class and position relative" />
     <MESSAGE value="Finish, add Quaternion MadgwickAHRS filter" />
     <MESSAGE value="Adding Doc String." />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding Doc String." />
+    <MESSAGE value="Finish adding Communication with Arduino through Wifi" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finish adding Communication with Arduino through Wifi" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/GestureXR$test.coverage" NAME="test Coverage Results" MODIFIED="1714658059476" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model" />

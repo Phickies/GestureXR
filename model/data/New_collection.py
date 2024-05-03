@@ -34,32 +34,31 @@ while count == 1:
     #     # Get current timestamp1
     current_timestamp = datetime.now().strftime('%H:%M:%S.%f')
 
-        # Check keyboard input to set sep and current_label
-        if keyboard.is_pressed('1'):
-            current_label = labels[0]
+    # Check keyboard input to set sep and current_label
+    if keyboard.is_pressed('1'):
+        current_label = labels[0]
 
-        elif keyboard.is_pressed('2'):
-            current_label = labels[1]
+    elif keyboard.is_pressed('2'):
+        current_label = labels[1]
 
-        elif keyboard.is_pressed('3'):
-            current_label = labels[2]
+    elif keyboard.is_pressed('3'):
+        current_label = labels[2]
 
-        elif keyboard.is_pressed('4'):
-            current_label = labels[3]
+    elif keyboard.is_pressed('4'):
+        current_label = labels[3]
 
-        elif keyboard.is_pressed('5'):
-            current_label = labels[4]
+    elif keyboard.is_pressed('5'):
+        current_label = labels[4]
 
-        elif keyboard.is_pressed('6'):
-            final = {"timestamp": timestamp, "position": position, "label": label}
-            with open("sample41.json", "w") as outfile:
-                json.dump(final, outfile)
+    elif keyboard.is_pressed('6'):
+        final = {"timestamp": timestamp, "position": position, "label": label}
+        with open("sample41.json", "w") as outfile:
+            json.dump(final, outfile)
 
-            ser.close()
-            file.close()
+        ser.close()
 
-        timestamp.append(current_timestamp)
-        position.append(data)
-        label.append(current_label)
+    timestamp.append(current_timestamp)
+    position.append(data)
+    label.append(current_label)
 
 

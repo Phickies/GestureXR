@@ -106,7 +106,7 @@ def convert_dataframe_to_array(dataframe):
     return np.array(total)
 
 
-def drop_remain(a, b):
+def drop_remain(a, b, n_batch):
     """
 
     Parameters
@@ -122,7 +122,7 @@ def drop_remain(a, b):
         Training and Label set with stripped value to fit with database
 
     """
-    remain = a.__len__() % 64
+    remain = a.__len__() % n_batch
     if remain == 0:
         return a, b
     else:

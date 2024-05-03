@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\model\data\data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\model\data\data_collected_unprocessed\data1.csv">
           <value>
             <Attribute>

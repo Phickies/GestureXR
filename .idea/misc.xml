@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Pipenv (GestureXR-new)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (GestureXR-new)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (GestureXR)" project-jdk-type="Python SDK" />
 </project>

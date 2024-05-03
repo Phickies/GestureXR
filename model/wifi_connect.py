@@ -27,27 +27,22 @@ try:
         # Decode the byte string to a regular string
         decoded_data = data.decode('utf-8')
         lines = decoded_data.strip().split("\r\n")
-        all_float_numbers = []
-        for line in lines:
-            try:
-                # Split the line by commas
-                string_numbers = line.split(',')
-                # Convert each string to a float and append to the list
-                float_numbers = [float(num) for num in string_numbers]
-                all_float_numbers.append(float_numbers)
-            except ValueError:
-                all_float_numbers.append(-1)
-        # Print the result
-        for numbers in all_float_numbers:
+        try:
+            # Split the line by commas
+            string_numbers = lines[0].split(',')
+            # Convert each string to a float and append to the list
+            float_numbers = [float(num) for num in string_numbers]
+        except ValueError:
+            float_numbers = -1
+        print(float_numbers)
+        if not isinstance(float_numbers, int) and len(float_numbers) == 12:
+            numbers = np.asarray(float_numbers)
+            numbers = numbers.reshape(1, -1)  # Reshape to add a batch dimension
             print(numbers)
-            if not isinstance(numbers, int) and len(numbers) == 12:
-                numbers = np.asarray(numbers)
-                numbers = numbers.reshape(1, -1)  # Reshape to add a batch dimension
-                print(numbers)
-                prediction = model.model.predict(numbers, verbose=0)
-                print(label[np.argmax(prediction)])
-            else:
-                print("Reading error")
+            prediction = model.model.predict(numbers, verbose=0)
+            print(label[np.argmax(prediction)])
+        else:
+            print("Reading error")
 
 finally:
     s.close()

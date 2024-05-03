@@ -35,6 +35,8 @@ class GestureClassifier:
             layers.InputLayer(input_shape=input_shape),
             layers.Dense(32, activation='sigmoid'),
             layers.Dense(32, activation='sigmoid'),
+            layers.Flatten(),
+            layers.Dense(32, activation='sigmoid'),
             layers.Dense(5, activation='softmax'),
         ])
         self.model.summary()
@@ -102,14 +104,15 @@ class GestureClassifier:
         :rtype: None
         """
         print('Evaluating the model...')
-        test_loss, test_acc = self.model.evaluate(x_test, verbose=0)
+        test_loss, test_acc = self.model.evaluate(x_test, y_test, verbose=0)
         print('Test loss:', test_loss)
         print('Test accuracy:', test_acc)
 
         plt.figure(figsize=(10, 8))
         prediction = self.model.predict(x_test)
         prediction_classes = np.argmax(prediction, axis=1)
-        cm = confusion_matrix(y_test, prediction_classes)
+        true_classes = np.argmax(y_test, axis=1)
+        cm = confusion_matrix(true_classes, prediction_classes)
         sns.heatmap(cm, annot=True, fmt='d', cmap='pink')
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')

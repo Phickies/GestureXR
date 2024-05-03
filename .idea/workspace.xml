@@ -5,19 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Finish adding Communication with Arduino through Wifi">
-      <change afterPath="$PROJECT_DIR$/model/lstm_model.keras" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/csv-editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/csv-editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/GestureXR-new.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GestureXR-new.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_03-05-2024_11_30__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_03-05-2024_11_30__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/data/data_preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/data/data_preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/data/sample.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/final.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/gestureXR_model.keras" beforeDir="false" afterPath="$PROJECT_DIR$/model/gestureXR_model.keras" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/wifi_connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/wifi_connect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/data/New_collection.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/data/New_collection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,6 +56,7 @@
   "keyToString": {
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Python.New_collection.executor": "Run",
     "Python.data_collection.executor": "Run",
     "Python.data_preprocess.executor": "Run",
     "Python.test.executor": "Run",
@@ -91,6 +83,30 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\culop\PycharmProjects\GestureXR\model\data" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="New_collection" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="GestureXR-new" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/model/data" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model/data/New_collection.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

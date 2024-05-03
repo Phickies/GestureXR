@@ -9,11 +9,11 @@ import keyboard
 ser = serial.Serial('COM5', 921600, timeout=1)
 
 # Create a CSV file
-csv_file_path = 'sample1.json'
+
 
 # Open file for data logging+
-file = open(csv_file_path, "w", newline='')
-json_writer = json.writer(file)
+
+
 labels = ["pinch2finger", "release2finger", "pinch3finger", "release3finger", "fists"]  # List of possible labels
 label_index = 0  # Index for cycling through labels
 current_label = labels[label_index]
@@ -30,9 +30,9 @@ while count == 1:
 
     print(data)
 
-    if len(data) == 1:  # Ensure we have exactly 6 sensor values
-        # Get current timestamp1
-        current_timestamp = datetime.now().strftime('%H:%M:%S.%f')
+    # if len(data) == 1:  # Ensure we have exactly 6 sensor values
+    #     # Get current timestamp1
+    current_timestamp = datetime.now().strftime('%H:%M:%S.%f')
 
         # Check keyboard input to set sep and current_label
         if keyboard.is_pressed('1'):
@@ -52,6 +52,8 @@ while count == 1:
 
         elif keyboard.is_pressed('6'):
             final = {"timestamp": timestamp, "position": position, "label": label}
+            with open("sample41.json", "w") as outfile:
+                json.dump(final, outfile)
 
             ser.close()
             file.close()

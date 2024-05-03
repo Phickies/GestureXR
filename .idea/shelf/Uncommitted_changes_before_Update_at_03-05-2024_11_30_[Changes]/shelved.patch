@@ -1,0 +1,290 @@
+Index: source/source.ino
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#include <Wire.h>\r\n#include \"SparkFun_BMI270_Arduino_Library.h\"\r\n#include \"Sensor_Information.h\"\r\n\r\n#define INT_PIN 4\r\n#define SDA_1_PIN 13\r\n#define SCL_1_PIN 12\r\n#define SDA_2_PIN 11\r\n#define SCL_2_PIN 14\r\n#define TOUCH_PIN 1\r\n\r\n#define PI 3.14159\r\n\r\n#define COM_RATE 400000  // 400KHz\r\n#define DT 0.001         // 1 ms\r\n\r\n#define ACC_RANGE BMI2_ACC_RANGE_16G  // 16G\r\n#define ACC_ODR BMI2_ACC_ODR_1600HZ   // 1600Hz\r\n#define ACC_BWP BMI2_ACC_NORMAL_AVG4  // Normal\r\n\r\n#define GYRO_RANGE BMI2_GYR_RANGE_2000  // 2000dps\r\n#define GYRO_ODR BMI2_GYR_ODR_3200HZ    // 3200Hz\r\n#define GYRO_BWP BMI2_GYR_NORMAL_MODE   // Normal\r\n\r\n#define FILTER_MODE BMI2_PERF_OPT_MODE  // Performance mode\r\n\r\n/* \r\n  Class finger to abstract IMU and data in each finger\r\n  Attribute:\r\n    Quaternion q0, q1, q2, q3;\r\n    Vector3 accleration, rotateSpeed;\r\n    BMI270 imu;\r\n    String name;\r\n  Method:\r\n    void setupI2C(TwoWire* i2cBus, uint8_t sensorAddress);\r\n    void setupConfig(bmi2_sens_config accelConfig, bmi2_sens_config gyroConfig, bmi2_int_pin_config intConfig);\r\n    void calibrateSensor();\r\n    void getRawData();\r\n    void filterDataAHSR();\r\n    void serialPrintRawData();\r\n    void serialPrintQuaternion();\r\n  */\r\nclass Finger {\r\n  public:\r\n\r\n  volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;\r\n\r\n  struct Vector3 {\r\n    float x, y, z;\r\n  };\r\n\r\n  Vector3 acceleration, rotateSpeed;\r\n  String name;\r\n  BMI270 imu;\r\n\r\n  Finger(const String& name)\r\n    : name(name), acceleration({ 0, 0, 0 }), rotateSpeed({ 0, 0, 0 }){};\r\n\r\n  // Setup I2C port and establish connection with the IMU sensor\r\n  void setupI2C(TwoWire* i2cBus, uint8_t sensorAddress) {\r\n    uint8_t result = this->imu.beginI2C(BMI2_I2C_PRIM_ADDR, *i2cBus);\r\n    while (result != BMI2_OK) {\r\n      Serial.print(\"Error for \");\r\n      Serial.print(this->name);\r\n      Serial.print(\" \");\r\n      Serial.println(result);\r\n      delay(1000);\r\n    }\r\n  }\r\n\r\n  // Setup config for IMU sensor including acceleration, gyroscope and Interrupt pin\r\n  void setupConfig(bmi2_sens_config accelConfig, bmi2_sens_config gyroConfig, bmi2_int_pin_config intConfig) {\r\n    uint8_t resultAccel = this->imu.setConfig(accelConfig);\r\n    uint8_t resultGyro = this->imu.setConfig(gyroConfig);\r\n    while (resultAccel != BMI2_OK) {\r\n      Serial.print(\"Error accel config for \");\r\n      Serial.print(this->name);\r\n      Serial.print(\" \");\r\n      Serial.println(resultAccel);\r\n      delay(1000);\r\n    }\r\n    while (resultGyro != BMI2_OK) {\r\n      Serial.print(\"Error gyro config for \");\r\n      Serial.print(this->name);\r\n      Serial.print(\" \");\r\n      Serial.println(resultGyro);\r\n      delay(1000);\r\n    }\r\n    this->imu.mapInterruptToPin(BMI2_DRDY_INT, BMI2_INT1);\r\n    this->imu.setInterruptPinConfig(intConfig);\r\n  }\r\n\r\n  /*\r\n    Calibration data\r\n\r\n    Perform component retrim for the gyroscope. According to the datasheet,\r\n    the gyroscope has a typical error of 2%, but running the CRT can reduce\r\n    that error to 0.4%\r\n\r\n    Perform offset calibration for both the accelerometer and IMU. This will\r\n    automatically determine the offset of each axis of each sensor, and\r\n    that offset will be subtracted from future measurements. Note that the\r\n    offset resolution is limited for each sensor:\r\n    \r\n    Accelerometer offset resolution: 0.0039 g\r\n    Gyroscope offset resolution: 0.061 deg/sec\r\n  */\r\n  void calibrateSensor() {\r\n    Serial.print(\"Performing component retrimming for \");\r\n    Serial.println(this->name);\r\n    this->imu.performComponentRetrim();\r\n    Serial.print(\"Performing acclerometer offset calibration for \");\r\n    Serial.println(this->name);\r\n    this->imu.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);\r\n    Serial.print(\"Performing gyroscope offset calibration for \");\r\n    Serial.println(this->name);\r\n    this->imu.performGyroOffsetCalibration();\r\n  }\r\n\r\n  // Get the raw data for accelaration and gyro from the library API\r\n  void getRawData() {\r\n    uint8_t result = this->imu.getSensorData();\r\n    while (result != BMI2_OK) {\r\n      Serial.print(\"Error collecting data on \");\r\n      Serial.print(this->name);\r\n      Serial.print(\" \");\r\n      Serial.println(result);\r\n    }\r\n    this->acceleration.x = this->imu.data.accelX;\r\n    this->acceleration.y = this->imu.data.accelY;\r\n    this->acceleration.z = this->imu.data.accelZ;\r\n\r\n    this->rotateSpeed.x = this->imu.data.gyroX;\r\n    this->rotateSpeed.y = this->imu.data.gyroY;\r\n    this->rotateSpeed.z = this->imu.data.gyroZ;\r\n  }\r\n\r\n  // Filter the data with fancy MadgwickAHSR Algorithm\r\n  void fileDataAHSR(const float sampleFreq, const float beta) {\r\n    this->MadgwickAHRSupdateIMU(\r\n      deg2rad(this->rotateSpeed.x),\r\n      deg2rad(this->rotateSpeed.y),\r\n      deg2rad(this->rotateSpeed.z),\r\n      this->acceleration.x,\r\n      this->acceleration.y,\r\n      this->acceleration.z,\r\n      sampleFreq,\r\n      beta);\r\n  }\r\n\r\n  // Serial print raw acceleration and gyroscope\r\n  void serialPrintRawData() {\r\n    Serial.print(this->acceleration.x);\r\n    Serial.print(\", \");\r\n    Serial.print(this->acceleration.y);\r\n    Serial.print(\", \");\r\n    Serial.print(this->acceleration.z);\r\n    Serial.print(\", \");\r\n    Serial.print(this->rotateSpeed.x);\r\n    Serial.print(\", \");\r\n    Serial.print(this->rotateSpeed.y);\r\n    Serial.print(\", \");\r\n    Serial.print(this->rotateSpeed.z);\r\n    Serial.println(\", \");\r\n  }\r\n\r\n  void serialPrintQuaternion() {\r\n    Serial.print(this->q0);\r\n    Serial.print(\", \");\r\n    Serial.print(this->q1);\r\n    Serial.print(\", \");\r\n    Serial.print(this->q2);\r\n    Serial.print(\", \");\r\n    Serial.print(this->q3);\r\n    Serial.print(\", \");\r\n  }\r\n\r\n  void serialPrintQuaternionEnd() {\r\n    Serial.print(this->q0);\r\n    Serial.print(\", \");\r\n    Serial.print(this->q1);\r\n    Serial.print(\", \");\r\n    Serial.print(this->q2);\r\n    Serial.print(\", \");\r\n    Serial.println(this->q3);\r\n  }\r\n\r\nprivate:\r\n  float deg2rad(float value) {\r\n    return (float)(PI / 180) * value;\r\n  }\r\n\r\n  float integrate(float value, float dt) {\r\n    return value * dt;\r\n  }\r\n\r\n  void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az, const float sampleFreq, const float beta) {\r\n    float recipNorm;\r\n    float s0, s1, s2, s3;\r\n    float qDot1, qDot2, qDot3, qDot4;\r\n    float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2, _8q1, _8q2;\r\n    float q0q0, q1q1, q2q2, q3q3;\r\n\r\n    // Rate of change of quaternion from gyroscope\r\n    qDot1 = 0.5f * (-this->q1 * gx - this->q2 * gy - this->q3 * gz);\r\n    qDot2 = 0.5f * (this->q0 * gx + this->q2 * gz - this->q3 * gy);\r\n    qDot3 = 0.5f * (this->q0 * gy - this->q1 * gz + this->q3 * gx);\r\n    qDot4 = 0.5f * (this->q0 * gz + this->q1 * gy - this->q2 * gx);\r\n\r\n    // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)\r\n    if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {\r\n      // Normalize accelerometer measurement\r\n      recipNorm = invSqrt(ax * ax + ay * ay + az * az);\r\n      ax *= recipNorm;\r\n      ay *= recipNorm;\r\n      az *= recipNorm;\r\n\r\n      // Auxiliary variables to avoid repeated arithmetic\r\n      _2q0 = 2.0f * this->q0;\r\n      _2q1 = 2.0f * this->q1;\r\n      _2q2 = 2.0f * this->q2;\r\n      _2q3 = 2.0f * this->q3;\r\n      _4q0 = 4.0f * this->q0;\r\n      _4q1 = 4.0f * this->q1;\r\n      _4q2 = 4.0f * this->q2;\r\n      _8q1 = 8.0f * this->q1;\r\n      _8q2 = 8.0f * this->q2;\r\n      q0q0 = this->q0 * this->q0;\r\n      q1q1 = this->q1 * this->q1;\r\n      q2q2 = this->q2 * this->q2;\r\n      q3q3 = this->q3 * this->q3;\r\n\r\n      // Gradient decent algorithm corrective step\r\n      s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;\r\n      s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * this->q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;\r\n      s2 = 4.0f * q0q0 * this->q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;\r\n      s3 = 4.0f * q1q1 * this->q3 - _2q1 * ax + 4.0f * q2q2 * this->q3 - _2q2 * ay;\r\n      recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);  // normalize step magnitude\r\n      s0 *= recipNorm;\r\n      s1 *= recipNorm;\r\n      s2 *= recipNorm;\r\n      s3 *= recipNorm;\r\n\r\n      // Apply feedback step\r\n      qDot1 -= beta * s0;\r\n      qDot2 -= beta * s1;\r\n      qDot3 -= beta * s2;\r\n      qDot4 -= beta * s3;\r\n    }\r\n\r\n    // Integrate rate of change of quaternion to yield quaternion\r\n    this->q0 += qDot1 * (1.0f / sampleFreq);\r\n    this->q1 += qDot2 * (1.0f / sampleFreq);\r\n    this->q2 += qDot3 * (1.0f / sampleFreq);\r\n    this->q3 += qDot4 * (1.0f / sampleFreq);\r\n\r\n    // Normalize quaternion\r\n    recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);\r\n    this->q0 *= recipNorm;\r\n    this->q1 *= recipNorm;\r\n    this->q2 *= recipNorm;\r\n    this->q3 *= recipNorm;\r\n  }\r\n\r\n  // Fast inverse square-root\r\n  float invSqrt(float x) {\r\n    float halfx = 0.5f * x;\r\n    float y = x;\r\n    long i = *(long*)&y;\r\n    i = 0x5f3759df - (i >> 1);\r\n    y = *(float*)&i;\r\n    y = y * (1.5f - (halfx * y * y));\r\n    return y;\r\n  }\r\n\r\n\r\n};\r\n\r\n//-----------------------------------------\r\n//          Main function\r\n//-----------------------------------------\r\n\r\nstruct bmi2_sens_config accelConfig;\r\nstruct bmi2_sens_config gyroConfig;\r\nstruct bmi2_int_pin_config interruptConfig;\r\n\r\n// Flag to know when interrupts occur\r\nvolatile bool interruptOccurred = false;\r\nuint8_t touchVal = 0;\r\n\r\nTwoWire i2cBus1 = TwoWire(0);\r\nTwoWire i2cBus2 = TwoWire(1);\r\n\r\nFinger middleFinger(\"Middle\");\r\nFinger indexFinger(\"Index\");\r\nFinger thumbFinger(\"Thumb\");\r\n\r\nvoid setup() {\r\n\r\n  // Start serial\r\n  Serial.begin(921600);\r\n  Serial.println(\"GestureXR start\");\r\n\r\n  // Initialize the I2C library\r\n  i2cBus1.begin(SDA_2_PIN, SCL_2_PIN);\r\n  i2cBus2.begin(SDA_1_PIN, SCL_1_PIN);\r\n\r\n  // Setup I2C connection\r\n  middleFinger.setupI2C(&i2cBus1, BMI2_I2C_PRIM_ADDR);\r\n  indexFinger.setupI2C(&i2cBus2, BMI2_I2C_PRIM_ADDR);\r\n  thumbFinger.setupI2C(&i2cBus1, BMI2_I2C_SEC_ADDR);\r\n\r\n  // Setup Config\r\n  accelConfig = setConfigAccel(&accelConfig);\r\n  gyroConfig = setConfigGyro(&gyroConfig);\r\n  interruptConfig = setConfigInterupt(&interruptConfig);\r\n  middleFinger.setupConfig(accelConfig, gyroConfig, interruptConfig);\r\n  indexFinger.setupConfig(accelConfig, gyroConfig, interruptConfig);\r\n  thumbFinger.setupConfig(accelConfig, gyroConfig, interruptConfig);\r\n  attachInterrupt(INT_PIN, handleInterrupt, RISING);\r\n\r\n  // Calibrating Sensor\r\n  Serial.println(\"Place the sensor on a flat surface and leave it stationary.\");\r\n  middleFinger.calibrateSensor();\r\n  indexFinger.calibrateSensor();\r\n  thumbFinger.calibrateSensor();\r\n  Serial.println(\"Calibration done! Start collecting data!\");\r\n\r\n  // Delay to setup interrupt pin\r\n  delay(100);\r\n  pinMode(TOUCH_PIN, INPUT);\r\n}\r\n\r\nvoid loop() {\r\n\r\n  touchVal = digitalRead(TOUCH_PIN);\r\n\r\n  if (touchVal) {\r\n    middleFinger.getRawData();\r\n    indexFinger.getRawData();\r\n    thumbFinger.getRawData();\r\n    middleFinger.fileDataAHSR(400, 0.1);\r\n    indexFinger.fileDataAHSR(400, 0.1);\r\n    thumbFinger.fileDataAHSR(400, 0.1);\r\n    middleFinger.serialPrintQuaternion();\r\n    indexFinger.serialPrintQuaternion();\r\n    thumbFinger.serialPrintQuaternionEnd();\r\n  }\r\n}\r\n\r\n//-----------------------------------------\r\n//          Helper function\r\n//-----------------------------------------\r\n\r\nvoid handleInterrupt() {\r\n  interruptOccurred = true;\r\n}\r\n\r\n// Setup configuration for Accel Sensor\r\nbmi2_sens_config& setConfigAccel(bmi2_sens_config* accelConfig) {\r\n  accelConfig->type = BMI2_ACCEL;\r\n  accelConfig->cfg.acc.odr = ACC_ODR;\r\n  accelConfig->cfg.acc.bwp = ACC_BWP;\r\n  accelConfig->cfg.acc.filter_perf = FILTER_MODE;\r\n  accelConfig->cfg.acc.range = ACC_RANGE;\r\n  return *accelConfig;\r\n}\r\n\r\n// Setup configuration for Gyro Sensor\r\nbmi2_sens_config& setConfigGyro(bmi2_sens_config* gyroConfig) {\r\n  gyroConfig->type = BMI2_GYRO;\r\n  gyroConfig->cfg.gyr.odr = GYRO_ODR;\r\n  gyroConfig->cfg.gyr.bwp = GYRO_BWP;\r\n  gyroConfig->cfg.gyr.filter_perf = FILTER_MODE;\r\n  gyroConfig->cfg.gyr.range = GYRO_RANGE;\r\n  gyroConfig->cfg.gyr.noise_perf = FILTER_MODE;\r\n  return *gyroConfig;\r\n}\r\n\r\n// Setup configuration for Interupt Pin Sensor\r\nbmi2_int_pin_config& setConfigInterupt(bmi2_int_pin_config* intConfig) {\r\n  intConfig->pin_type = BMI2_INT1;\r\n  intConfig->int_latch = BMI2_INT_NON_LATCH;\r\n  intConfig->pin_cfg[0].output_en = BMI2_INT_OUTPUT_ENABLE;\r\n  intConfig->pin_cfg[0].od = BMI2_INT_PUSH_PULL;\r\n  intConfig->pin_cfg[0].lvl = BMI2_INT_ACTIVE_LOW;\r\n  intConfig->pin_cfg[0].input_en = BMI2_INT_INPUT_DISABLE;\r\n  return *intConfig;\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/source/source.ino b/source/source.ino
+--- a/source/source.ino	(revision 16873b4564bc6d3acdee6c55afade5d57b1f1b79)
++++ b/source/source.ino	(date 1714728565400)
+@@ -1,4 +1,5 @@
+ #include <Wire.h>
++#include <WiFi.h>
+ #include "SparkFun_BMI270_Arduino_Library.h"
+ #include "Sensor_Information.h"
+ 
+@@ -24,6 +25,7 @@
+ 
+ #define FILTER_MODE BMI2_PERF_OPT_MODE  // Performance mode
+ 
++
+ /* 
+   Class finger to abstract IMU and data in each finger
+   Attribute:
+@@ -41,7 +43,7 @@
+     void serialPrintQuaternion();
+   */
+ class Finger {
+-  public:
++public:
+ 
+   volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;
+ 
+@@ -106,14 +108,11 @@
+     Gyroscope offset resolution: 0.061 deg/sec
+   */
+   void calibrateSensor() {
+-    Serial.print("Performing component retrimming for ");
+-    Serial.println(this->name);
++    Serial.println("Performing component retrimming for " + this->name);
+     this->imu.performComponentRetrim();
+-    Serial.print("Performing acclerometer offset calibration for ");
+-    Serial.println(this->name);
++    Serial.println("Performing acclerometer offset calibration for " + this->name);
+     this->imu.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
+-    Serial.print("Performing gyroscope offset calibration for ");
+-    Serial.println(this->name);
++    Serial.println("Performing gyroscope offset calibration for " + this->name);
+     this->imu.performGyroOffsetCalibration();
+   }
+ 
+@@ -272,14 +271,15 @@
+     y = y * (1.5f - (halfx * y * y));
+     return y;
+   }
+-
+-
+ };
+ 
+ //-----------------------------------------
+ //          Main function
+ //-----------------------------------------
+ 
++const char* ssid = "Meme_2.4G";
++const char* password = "DankMemesOnly";
++
+ struct bmi2_sens_config accelConfig;
+ struct bmi2_sens_config gyroConfig;
+ struct bmi2_int_pin_config interruptConfig;
+@@ -288,6 +288,9 @@
+ volatile bool interruptOccurred = false;
+ uint8_t touchVal = 0;
+ 
++WiFiServer server(80);
++WiFiClient client;
++
+ TwoWire i2cBus1 = TwoWire(0);
+ TwoWire i2cBus2 = TwoWire(1);
+ 
+@@ -295,12 +298,28 @@
+ Finger indexFinger("Index");
+ Finger thumbFinger("Thumb");
+ 
++
+ void setup() {
+ 
+   // Start serial
+   Serial.begin(921600);
+   Serial.println("GestureXR start");
+ 
++  // Initialize WiFi Communication
++  WiFi.begin(ssid, password);
++  while (WiFi.status() != WL_CONNECTED) {
++    delay(500);
++    Serial.print(".");
++  }
++
++  // Establishing Server
++  server.begin();
++  Serial.println("Wifi connected");
++  Serial.println("IP address: ");
++  Serial.println(WiFi.localIP());
++
++  delay(2000);
++
+   // Initialize the I2C library
+   i2cBus1.begin(SDA_2_PIN, SCL_2_PIN);
+   i2cBus2.begin(SDA_1_PIN, SCL_1_PIN);
+@@ -320,6 +339,8 @@
+   attachInterrupt(INT_PIN, handleInterrupt, RISING);
+ 
+   // Calibrating Sensor
++  Serial.println("Gesture XR config done");
++  delay(1000);
+   Serial.println("Place the sensor on a flat surface and leave it stationary.");
+   middleFinger.calibrateSensor();
+   indexFinger.calibrateSensor();
+@@ -332,30 +353,57 @@
+ }
+ 
+ void loop() {
++  // Handshaking protocol with client
++  WiFiClient client = server.available();
++
++  if (!client) {
++    return;
++  }
++
++  // Wait until the client sends some data
++  Serial.println("Client Connected");
++  while (!client.available()) {
++    delay(1);
++  }
++
++  // Read the first line of the request
++  String request = client.readStringUntil('\r');
++  Serial.println(request);
++  client.flush();
++
++  while (true) {
+ 
+-  touchVal = digitalRead(TOUCH_PIN);
++    touchVal = digitalRead(TOUCH_PIN);
+ 
+-  if (touchVal) {
+-    middleFinger.getRawData();
+-    indexFinger.getRawData();
+-    thumbFinger.getRawData();
+-    middleFinger.fileDataAHSR(400, 0.1);
+-    indexFinger.fileDataAHSR(400, 0.1);
+-    thumbFinger.fileDataAHSR(400, 0.1);
+-    middleFinger.serialPrintQuaternion();
+-    indexFinger.serialPrintQuaternion();
+-    thumbFinger.serialPrintQuaternionEnd();
++    if (touchVal) {
++      middleFinger.getRawData();
++      indexFinger.getRawData();
++      thumbFinger.getRawData();
++      middleFinger.fileDataAHSR(400, 0.1);
++      indexFinger.fileDataAHSR(400, 0.1);
++      thumbFinger.fileDataAHSR(400, 0.1);
++      String middleString = String(middleFinger.q0) + "," + String(middleFinger.q1) + "," + String(middleFinger.q2) + "," + String(middleFinger.q3) + ",";
++      String indexString = String(indexFinger.q0) + "," + String(indexFinger.q1) + "," + String(indexFinger.q2) + "," + String(indexFinger.q3) + ",";
++      String thumbString = String(thumbFinger.q0) + "," + String(thumbFinger.q1) + "," + String(thumbFinger.q2) + "," + String(thumbFinger.q3);
++      client.println(middleString + indexString + thumbString);
++    }
+   }
++
++  client.stop();
++  Serial.println("Client disconnected!");
+ }
+ 
+ //-----------------------------------------
+ //          Helper function
+ //-----------------------------------------
+ 
++
++// hander Interrupt pin
+ void handleInterrupt() {
+   interruptOccurred = true;
+ }
+ 
++
+ // Setup configuration for Accel Sensor
+ bmi2_sens_config& setConfigAccel(bmi2_sens_config* accelConfig) {
+   accelConfig->type = BMI2_ACCEL;
+@@ -366,6 +414,7 @@
+   return *accelConfig;
+ }
+ 
++
+ // Setup configuration for Gyro Sensor
+ bmi2_sens_config& setConfigGyro(bmi2_sens_config* gyroConfig) {
+   gyroConfig->type = BMI2_GYRO;
+@@ -377,6 +426,7 @@
+   return *gyroConfig;
+ }
+ 
++
+ // Setup configuration for Interupt Pin Sensor
+ bmi2_int_pin_config& setConfigInterupt(bmi2_int_pin_config* intConfig) {
+   intConfig->pin_type = BMI2_INT1;
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"19ddb3ba-9f8e-442b-b181-f8d4a8f757d9\" name=\"Changes\" comment=\"Adding Doc String.\" />\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;,\n    &quot;assignee&quot;: &quot;Phickies&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">{\n  &quot;selectedUrlAndAccountId&quot;: {\n    &quot;url&quot;: &quot;https://github.com/Phickies/GestureXR.git&quot;,\n    &quot;accountId&quot;: &quot;cf8cbfb0-171e-4f2d-9fd1-8b17f876751b&quot;\n  }\n}</component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;customColor&quot;: &quot;&quot;,\n  &quot;associatedIndex&quot;: 7\n}</component>\n  <component name=\"ProjectId\" id=\"2fIH7LP3vkPgDa8xhnD0RFbMt4Z\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"ASKED_ADD_EXTERNAL_FILES\": \"true\",\n    \"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\n    \"Python.data_collection.executor\": \"Run\",\n    \"Python.data_preprocess.executor\": \"Run\",\n    \"Python.test.executor\": \"Run\",\n    \"Python.testing.executor\": \"Run\",\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"git-widget-placeholder\": \"main\",\n    \"ignore.virus.scanning.warn.message\": \"true\",\n    \"last_opened_file_path\": \"C:/Users/culop/PycharmProjects/GestureXR/model/data\",\n    \"node.js.detected.package.eslint\": \"true\",\n    \"node.js.detected.package.tslint\": \"true\",\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\n    \"nodejs_package_manager_path\": \"npm\",\n    \"settings.editor.selected.configurable\": \"editor.preferences.import\",\n    \"vue.rearranger.settings.migration\": \"true\"\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"C:\\Users\\culop\\PycharmProjects\\GestureXR\\model\\data\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"C:\\Users\\culop\\PycharmProjects\\GestureXR\\model\\data\" />\n    </key>\n  </component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241\" />\n        <option value=\"bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"19ddb3ba-9f8e-442b-b181-f8d4a8f757d9\" name=\"Changes\" comment=\"\" />\n      <created>1713481503884</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1713481503884</updated>\n      <workItem from=\"1714698401527\" duration=\"6313000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"Relocating data files\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713482763751</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713482763751</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"Relocating data files\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713482811936</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713482811936</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"Fixing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713485481129</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713485481129</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"Fixing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713485530273</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713485530273</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"Done preprocessing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713487957209</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713487957209</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\"Done preprocessing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713488026118</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713488026118</updated>\n    </task>\n    <task id=\"LOCAL-00007\" summary=\"Done preprocessing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713494059755</created>\n      <option name=\"number\" value=\"00007\" />\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713494059755</updated>\n    </task>\n    <task id=\"LOCAL-00008\" summary=\"Done preprocessing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713494094586</created>\n      <option name=\"number\" value=\"00008\" />\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713494094586</updated>\n    </task>\n    <task id=\"LOCAL-00009\" summary=\"Done preprocessing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1713494984028</created>\n      <option name=\"number\" value=\"00009\" />\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713494984028</updated>\n    </task>\n    <task id=\"LOCAL-00010\" summary=\"Done preprocessing data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714649918829</created>\n      <option name=\"number\" value=\"00010\" />\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714649918829</updated>\n    </task>\n    <task id=\"LOCAL-00011\" summary=\"Clean data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714649936355</created>\n      <option name=\"number\" value=\"00011\" />\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714649936355</updated>\n    </task>\n    <task id=\"LOCAL-00012\" summary=\"Add MLPClassifier\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714654847486</created>\n      <option name=\"number\" value=\"00012\" />\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714654847486</updated>\n    </task>\n    <task id=\"LOCAL-00013\" summary=\"Fixing source.ino, add Finger Class and position relative\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714699064904</created>\n      <option name=\"number\" value=\"00013\" />\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714699064904</updated>\n    </task>\n    <task id=\"LOCAL-00014\" summary=\"Fixing source.ino, add Finger Class and position relative\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714699485594</created>\n      <option name=\"number\" value=\"00014\" />\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714699485594</updated>\n    </task>\n    <task id=\"LOCAL-00015\" summary=\"Fixing source.ino, add Finger Class and position relative\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714702612875</created>\n      <option name=\"number\" value=\"00015\" />\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714702612875</updated>\n    </task>\n    <task id=\"LOCAL-00016\" summary=\"Finish, add Quaternion MadgwickAHRS filter\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714711677366</created>\n      <option name=\"number\" value=\"00016\" />\n      <option name=\"presentableId\" value=\"LOCAL-00016\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714711677366</updated>\n    </task>\n    <task id=\"LOCAL-00017\" summary=\"Adding Doc String.\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1714712402609</created>\n      <option name=\"number\" value=\"00017\" />\n      <option name=\"presentableId\" value=\"LOCAL-00017\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1714712402609</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"18\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\n    <MESSAGE value=\"Add function to change the dataset from string to int\" />\n    <MESSAGE value=\"Relocating data files\" />\n    <MESSAGE value=\"Fixing data\" />\n    <MESSAGE value=\"Done preprocessing data\" />\n    <MESSAGE value=\"Clean data\" />\n    <MESSAGE value=\"Add MLPClassifier\" />\n    <MESSAGE value=\"Fixing source.ino, add Finger Class and position relative\" />\n    <MESSAGE value=\"Finish, add Quaternion MadgwickAHRS filter\" />\n    <MESSAGE value=\"Adding Doc String.\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Adding Doc String.\" />\n  </component>\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\n    <SUITE FILE_PATH=\"coverage/GestureXR$test.coverage\" NAME=\"test Coverage Results\" MODIFIED=\"1714658059476\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/model\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 16873b4564bc6d3acdee6c55afade5d57b1f1b79)
++++ b/.idea/workspace.xml	(date 1714721386792)
+@@ -26,12 +26,12 @@
+     &quot;assignee&quot;: &quot;Phickies&quot;
+   }
+ }</component>
+-  <component name="GithubPullRequestsUISettings">{
+-  &quot;selectedUrlAndAccountId&quot;: {
+-    &quot;url&quot;: &quot;https://github.com/Phickies/GestureXR.git&quot;,
+-    &quot;accountId&quot;: &quot;cf8cbfb0-171e-4f2d-9fd1-8b17f876751b&quot;
++  <component name="GithubPullRequestsUISettings"><![CDATA[{
++  "selectedUrlAndAccountId": {
++    "url": "https://github.com/Phickies/GestureXR.git",
++    "accountId": "1a704038-b6fb-4535-a1ec-8beb45862e14"
+   }
+-}</component>
++}]]></component>
+   <component name="MarkdownSettingsMigration">
+     <option name="stateVersion" value="1" />
+   </component>
+@@ -47,28 +47,28 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "ASKED_ADD_EXTERNAL_FILES": "true",
+-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "Python.data_collection.executor": "Run",
+-    "Python.data_preprocess.executor": "Run",
+-    "Python.test.executor": "Run",
+-    "Python.testing.executor": "Run",
+-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "git-widget-placeholder": "main",
+-    "ignore.virus.scanning.warn.message": "true",
+-    "last_opened_file_path": "C:/Users/culop/PycharmProjects/GestureXR/model/data",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "settings.editor.selected.configurable": "editor.preferences.import",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
++    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;Python.data_collection.executor&quot;: &quot;Run&quot;,
++    &quot;Python.data_preprocess.executor&quot;: &quot;Run&quot;,
++    &quot;Python.test.executor&quot;: &quot;Run&quot;,
++    &quot;Python.testing.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
++    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
++    &quot;last_opened_file_path&quot;: &quot;C:/Users/culop/PycharmProjects/GestureXR/model/data&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.import&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+       <recent name="C:\Users\culop\PycharmProjects\GestureXR\model\data" />
+@@ -80,8 +80,7 @@
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
+-        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
++        <option value="bundled-python-sdk-0509580d9d50-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.14494.241" />
+       </set>
+     </attachedChunks>
+   </component>

@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 # Declare variable
 data_unprocessed_path = 'data/data_collected_unprocessed/'
@@ -106,8 +107,17 @@ def get_data():
     print("Fix sep value")
     df = fix_sep_value(df)
     df = pd.get_dummies(df, columns=['Label'], dtype=float)
+    print("Get X and y value")
+    X = df.drop(['Timestamp', 'Sep'], axis=1)
+    total = []
+    for index, row in X.iterrows():
+        twoD_list = [row['Accel'], row['Gyr']]
+        total.append(twoD_list)
+    X = np.array(total)
+    y = df.drop(['Timestamp', 'Accel', 'Gyr', 'Sep'], axis=1)
+    y = np.array(y)
     print("Done preprocessing data")
-    return df
+    return X, y
 
 
 if __name__ == "__main__":

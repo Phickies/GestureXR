@@ -1,45 +1,19 @@
 #include <Wire.h>
+#include <WiFi.h>
 #include "SparkFun_BMI270_Arduino_Library.h"
+#include "Sensor_Information.h"
 
-// The accelerometer and gyroscope can be configured with multiple settings
-// to reduce the measurement noise. Both sensors have the following settings
-// in common:
-// .range       - Measurement range. Lower values give more resolution, but
-//                doesn't affect noise significantly, and limits the max
-//                measurement before saturating the sensor
-// .odr         - Output data rate in Hz. Lower values result in less noise,
-//                but lower sampling rates.
-// .filter_perf - Filter performance mode. Performance oprtimized mode
-//                results in less noise, but increased power consumption
-// .bwp         - Filter bandwidth parameter. This has several possible
-//                settings that can reduce noise, but cause signal delay
-//
-// Both sensors have different possible values for each setting:
-//
-// Accelerometer values:
-// .range       - 2g to 16g
-// .odr         - Depends on .filter_perf:
-//                  Performance mode: 12.5Hz to 1600Hz
-//                  Power mode:       0.78Hz to 400Hz
-// .bwp         - Depends on .filter_perf:
-//                  Performance mode: Normal, OSR2, OSR4, CIC
-//                  Power mode:       Averaging from 1 to 128 samples
-//
-// Gyroscope values:
-// .range       - 125dps to 2000dps (deg/sec)
-// .ois_range   - 250dps or 2000dps (deg/sec) Only relevant when using OIS,
-//                see datasheet for more info. Defaults to 250dps
-// .odr         - Depends on .filter_perf:
-//                  Performance mode: 25Hz to 3200Hz
-//                  Power mode:       25Hz to 100Hz
-// .bwp         - Normal, OSR2, OSR4, CIC
-// .noise_perf  - Similar to .filter_perf. Performance oprtimized mode
-//                results in less noise, but increased power consumption
-//
-// Note that not all combinations of values are possible. The performance
-// mode restricts which ODR settings can be used, and the ODR restricts some
-// bandwidth parameters. An error code is returned by setConfig, which can
-// be used to determine whether the selected settings are valid.
+#define INT_PIN 4
+#define SDA_1_PIN 13
+#define SCL_1_PIN 12
+#define SDA_2_PIN 11
+#define SCL_2_PIN 14
+#define TOUCH_PIN 1
+
+#define PI 3.14159
+
+#define COM_RATE 400000  // 400KHz
+#define DT 0.001         // 1 ms
 
 #define ACC_RANGE BMI2_ACC_RANGE_16G  // 16G
 #define ACC_ODR BMI2_ACC_ODR_1600HZ   // 1600Hz
@@ -51,311 +25,415 @@
 
 #define FILTER_MODE BMI2_PERF_OPT_MODE  // Performance mode
 
-#define INT_PIN 4
-#define SDA_1_PIN 13
-#define SCL_1_PIN 12
-#define SDA_2_PIN 11
-#define SCL_2_PIN 14
-#define TOUCH_PIN 1
 
-int touch_val = 0;
+/* 
+  Class finger to abstract IMU and data in each finger
+  Attribute:
+    Quaternion q0, q1, q2, q3;
+    Vector3 accleration, rotateSpeed;
+    BMI270 imu;
+    String name;
+  Method:
+    void setupI2C(TwoWire* i2cBus, uint8_t sensorAddress);
+    void setupConfig(bmi2_sens_config accelConfig, bmi2_sens_config gyroConfig, bmi2_int_pin_config intConfig);
+    void calibrateSensor();
+    void getRawData();
+    void filterDataAHSR();
+    void serialPrintRawData();
+    void serialPrintQuaternion();
+  */
+class Finger {
+public:
 
-#define COM_RATE 400000  // 400KHz
+  volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;
 
+  struct Vector3 {
+    float x, y, z;
+  };
 
-// Create a new sensor object
-BMI270 imu_middle_f;
-BMI270 imu_index_f;
-BMI270 imu_thumb_f;
+  Vector3 acceleration, rotateSpeed;
+  String name;
+  BMI270 imu;
 
-bmi2_sens_config accelConfig;
-bmi2_sens_config gyroConfig;
+  Finger(const String& name)
+    : name(name), acceleration({ 0, 0, 0 }), rotateSpeed({ 0, 0, 0 }){};
 
-// Setting global variable
-unsigned long waitingTimeBeforePowerDown = 30000;  // 30 seconds
-unsigned long delayTimeForwaiting = 0;
-unsigned long startTime = 0;
+  // Setup I2C port and establish connection with the IMU sensor
+  void setupI2C(TwoWire* i2cBus, uint8_t sensorAddress) {
+    uint8_t result = this->imu.beginI2C(BMI2_I2C_PRIM_ADDR, *i2cBus);
+    while (result != BMI2_OK) {
+      Serial.print("Error for ");
+      Serial.print(this->name);
+      Serial.print(" ");
+      Serial.println(result);
+      delay(1000);
+    }
+  }
 
-// I2C address selection
-uint8_t i2cAddress1 = BMI2_I2C_PRIM_ADDR;  // 0x68
-uint8_t i2cAddress2 = BMI2_I2C_SEC_ADDR;  // 0x69
+  // Setup config for IMU sensor including acceleration, gyroscope and Interrupt pin
+  void setupConfig(bmi2_sens_config accelConfig, bmi2_sens_config gyroConfig, bmi2_int_pin_config intConfig) {
+    uint8_t resultAccel = this->imu.setConfig(accelConfig);
+    uint8_t resultGyro = this->imu.setConfig(gyroConfig);
+    while (resultAccel != BMI2_OK) {
+      Serial.print("Error accel config for ");
+      Serial.print(this->name);
+      Serial.print(" ");
+      Serial.println(resultAccel);
+      delay(1000);
+    }
+    while (resultGyro != BMI2_OK) {
+      Serial.print("Error gyro config for ");
+      Serial.print(this->name);
+      Serial.print(" ");
+      Serial.println(resultGyro);
+      delay(1000);
+    }
+    this->imu.mapInterruptToPin(BMI2_DRDY_INT, BMI2_INT1);
+    this->imu.setInterruptPinConfig(intConfig);
+  }
+
+  /*
+    Calibration data
+
+    Perform component retrim for the gyroscope. According to the datasheet,
+    the gyroscope has a typical error of 2%, but running the CRT can reduce
+    that error to 0.4%
+
+    Perform offset calibration for both the accelerometer and IMU. This will
+    automatically determine the offset of each axis of each sensor, and
+    that offset will be subtracted from future measurements. Note that the
+    offset resolution is limited for each sensor:
+    
+    Accelerometer offset resolution: 0.0039 g
+    Gyroscope offset resolution: 0.061 deg/sec
+  */
+  void calibrateSensor() {
+    Serial.println("Performing component retrimming for " + this->name);
+    this->imu.performComponentRetrim();
+    Serial.println("Performing acclerometer offset calibration for " + this->name);
+    this->imu.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
+    Serial.println("Performing gyroscope offset calibration for " + this->name);
+    this->imu.performGyroOffsetCalibration();
+  }
+
+  // Get the raw data for accelaration and gyro from the library API
+  void getRawData() {
+    uint8_t result = this->imu.getSensorData();
+    while (result != BMI2_OK) {
+      Serial.print("Error collecting data on ");
+      Serial.print(this->name);
+      Serial.print(" ");
+      Serial.println(result);
+    }
+    this->acceleration.x = this->imu.data.accelX;
+    this->acceleration.y = this->imu.data.accelY;
+    this->acceleration.z = this->imu.data.accelZ;
+
+    this->rotateSpeed.x = this->imu.data.gyroX;
+    this->rotateSpeed.y = this->imu.data.gyroY;
+    this->rotateSpeed.z = this->imu.data.gyroZ;
+  }
+
+  // Filter the data with fancy MadgwickAHSR Algorithm
+  void fileDataAHSR(const float sampleFreq, const float beta) {
+    this->MadgwickAHRSupdateIMU(
+      deg2rad(this->rotateSpeed.x),
+      deg2rad(this->rotateSpeed.y),
+      deg2rad(this->rotateSpeed.z),
+      this->acceleration.x,
+      this->acceleration.y,
+      this->acceleration.z,
+      sampleFreq,
+      beta);
+  }
+
+  // Serial print raw acceleration and gyroscope
+  void serialPrintRawData() {
+    Serial.print(this->acceleration.x);
+    Serial.print(", ");
+    Serial.print(this->acceleration.y);
+    Serial.print(", ");
+    Serial.print(this->acceleration.z);
+    Serial.print(", ");
+    Serial.print(this->rotateSpeed.x);
+    Serial.print(", ");
+    Serial.print(this->rotateSpeed.y);
+    Serial.print(", ");
+    Serial.print(this->rotateSpeed.z);
+    Serial.println(", ");
+  }
+
+  void serialPrintQuaternion() {
+    Serial.print(this->q0);
+    Serial.print(", ");
+    Serial.print(this->q1);
+    Serial.print(", ");
+    Serial.print(this->q2);
+    Serial.print(", ");
+    Serial.print(this->q3);
+    Serial.print(", ");
+  }
+
+  void serialPrintQuaternionEnd() {
+    Serial.print(this->q0);
+    Serial.print(", ");
+    Serial.print(this->q1);
+    Serial.print(", ");
+    Serial.print(this->q2);
+    Serial.print(", ");
+    Serial.println(this->q3);
+  }
+
+private:
+  float deg2rad(float value) {
+    return (float)(PI / 180) * value;
+  }
+
+  float integrate(float value, float dt) {
+    return value * dt;
+  }
+
+  void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az, const float sampleFreq, const float beta) {
+    float recipNorm;
+    float s0, s1, s2, s3;
+    float qDot1, qDot2, qDot3, qDot4;
+    float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2, _8q1, _8q2;
+    float q0q0, q1q1, q2q2, q3q3;
+
+    // Rate of change of quaternion from gyroscope
+    qDot1 = 0.5f * (-this->q1 * gx - this->q2 * gy - this->q3 * gz);
+    qDot2 = 0.5f * (this->q0 * gx + this->q2 * gz - this->q3 * gy);
+    qDot3 = 0.5f * (this->q0 * gy - this->q1 * gz + this->q3 * gx);
+    qDot4 = 0.5f * (this->q0 * gz + this->q1 * gy - this->q2 * gx);
+
+    // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+    if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
+      // Normalize accelerometer measurement
+      recipNorm = invSqrt(ax * ax + ay * ay + az * az);
+      ax *= recipNorm;
+      ay *= recipNorm;
+      az *= recipNorm;
+
+      // Auxiliary variables to avoid repeated arithmetic
+      _2q0 = 2.0f * this->q0;
+      _2q1 = 2.0f * this->q1;
+      _2q2 = 2.0f * this->q2;
+      _2q3 = 2.0f * this->q3;
+      _4q0 = 4.0f * this->q0;
+      _4q1 = 4.0f * this->q1;
+      _4q2 = 4.0f * this->q2;
+      _8q1 = 8.0f * this->q1;
+      _8q2 = 8.0f * this->q2;
+      q0q0 = this->q0 * this->q0;
+      q1q1 = this->q1 * this->q1;
+      q2q2 = this->q2 * this->q2;
+      q3q3 = this->q3 * this->q3;
+
+      // Gradient decent algorithm corrective step
+      s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;
+      s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * this->q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
+      s2 = 4.0f * q0q0 * this->q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
+      s3 = 4.0f * q1q1 * this->q3 - _2q1 * ax + 4.0f * q2q2 * this->q3 - _2q2 * ay;
+      recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);  // normalize step magnitude
+      s0 *= recipNorm;
+      s1 *= recipNorm;
+      s2 *= recipNorm;
+      s3 *= recipNorm;
+
+      // Apply feedback step
+      qDot1 -= beta * s0;
+      qDot2 -= beta * s1;
+      qDot3 -= beta * s2;
+      qDot4 -= beta * s3;
+    }
+
+    // Integrate rate of change of quaternion to yield quaternion
+    this->q0 += qDot1 * (1.0f / sampleFreq);
+    this->q1 += qDot2 * (1.0f / sampleFreq);
+    this->q2 += qDot3 * (1.0f / sampleFreq);
+    this->q3 += qDot4 * (1.0f / sampleFreq);
+
+    // Normalize quaternion
+    recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+    this->q0 *= recipNorm;
+    this->q1 *= recipNorm;
+    this->q2 *= recipNorm;
+    this->q3 *= recipNorm;
+  }
+
+  // Fast inverse square-root
+  float invSqrt(float x) {
+    float halfx = 0.5f * x;
+    float y = x;
+    long i = *(long*)&y;
+    i = 0x5f3759df - (i >> 1);
+    y = *(float*)&i;
+    y = y * (1.5f - (halfx * y * y));
+    return y;
+  }
+};
+
+//-----------------------------------------
+//          Main function
+//-----------------------------------------
+
+const char* ssid = "Meme_2.4G";
+const char* password = "DankMemesOnly";
+
+struct bmi2_sens_config accelConfig;
+struct bmi2_sens_config gyroConfig;
+struct bmi2_int_pin_config interruptConfig;
 
 // Flag to know when interrupts occur
 volatile bool interruptOccurred = false;
+uint8_t touchVal = 0;
 
-TwoWire i2c1 = TwoWire(0);
-TwoWire i2c2 = TwoWire(1);
+WiFiServer server(80);
+WiFiClient client;
+
+TwoWire i2cBus1 = TwoWire(0);
+TwoWire i2cBus2 = TwoWire(1);
+
+Finger middleFinger("Middle");
+Finger indexFinger("Index");
+Finger thumbFinger("Thumb");
 
 
+void setup() {
 
+  // Start serial
+  Serial.begin(921600);
+  Serial.println("GestureXR start");
+
+  // Initialize WiFi Communication
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Establishing Server
+  server.begin();
+  Serial.println("Wifi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  delay(2000);
+
+  // Initialize the I2C library
+  i2cBus1.begin(SDA_2_PIN, SCL_2_PIN);
+  i2cBus2.begin(SDA_1_PIN, SCL_1_PIN);
+
+  // Setup I2C connection
+  middleFinger.setupI2C(&i2cBus1, BMI2_I2C_PRIM_ADDR);
+  indexFinger.setupI2C(&i2cBus2, BMI2_I2C_PRIM_ADDR);
+  thumbFinger.setupI2C(&i2cBus1, BMI2_I2C_SEC_ADDR);
+
+  // Setup Config
+  accelConfig = setConfigAccel(&accelConfig);
+  gyroConfig = setConfigGyro(&gyroConfig);
+  interruptConfig = setConfigInterupt(&interruptConfig);
+  middleFinger.setupConfig(accelConfig, gyroConfig, interruptConfig);
+  indexFinger.setupConfig(accelConfig, gyroConfig, interruptConfig);
+  thumbFinger.setupConfig(accelConfig, gyroConfig, interruptConfig);
+  attachInterrupt(INT_PIN, handleInterrupt, RISING);
+
+  // Calibrating Sensor
+  Serial.println("Gesture XR config done");
+  delay(1000);
+  Serial.println("Place the sensor on a flat surface and leave it stationary.");
+  middleFinger.calibrateSensor();
+  indexFinger.calibrateSensor();
+  thumbFinger.calibrateSensor();
+  Serial.println("Calibration done! Start collecting data!");
+
+  // Delay to setup interrupt pin
+  delay(100);
+  pinMode(TOUCH_PIN, INPUT);
+}
+
+void loop() {
+  // Handshaking protocol with client
+  WiFiClient client = server.available();
+
+  if (!client) {
+    return;
+  }
+
+  // Wait until the client sends some data
+  Serial.println("Client Connected");
+  while (!client.available()) {
+    delay(1);
+  }
+
+  // Read the first line of the request
+  String request = client.readStringUntil('\r');
+  Serial.println(request);
+  client.flush();
+
+  while (true) {
+
+    touchVal = digitalRead(TOUCH_PIN);
+
+    if (touchVal) {
+      middleFinger.getRawData();
+      indexFinger.getRawData();
+      thumbFinger.getRawData();
+      middleFinger.fileDataAHSR(400, 0.1);
+      indexFinger.fileDataAHSR(400, 0.1);
+      thumbFinger.fileDataAHSR(400, 0.1);
+      String middleString = String(middleFinger.q0) + "," + String(middleFinger.q1) + "," + String(middleFinger.q2) + "," + String(middleFinger.q3) + ",";
+      String indexString = String(indexFinger.q0) + "," + String(indexFinger.q1) + "," + String(indexFinger.q2) + "," + String(indexFinger.q3) + ",";
+      String thumbString = String(thumbFinger.q0) + "," + String(thumbFinger.q1) + "," + String(thumbFinger.q2) + "," + String(thumbFinger.q3);
+      client.println(middleString + indexString + thumbString);
+    }
+  }
+
+  client.stop();
+  Serial.println("Client disconnected!");
+}
+
+//-----------------------------------------
+//          Helper function
+//-----------------------------------------
+
+
+// hander Interrupt pin
 void handleInterrupt() {
   interruptOccurred = true;
 }
 
 
-void setup() {
-  // Start serial
-  Serial.begin(921600);
-
-  // Initialize the I2C library
-  i2c1.begin(SDA_2_PIN, SCL_2_PIN);
-  i2c2.begin(SDA_1_PIN, SCL_1_PIN);
-
-
-  while (imu_middle_f.beginI2C(i2cAddress1, i2c1) != BMI2_OK) {
-    Serial.println(imu_middle_f.beginI2C(i2cAddress1, i2c1));
-    // Not connected, inform user
-    Serial.println("Error: BMI270 in the middle finger is not connected, error code is printed aboved!");
-
-    // Wait a bit to see if connection is established
-    delay(1000);
-  }
-  Serial.println("BMI270 in middle finger is connected!");
-
-  while (imu_index_f.beginI2C(i2cAddress1, i2c2) != BMI2_OK) {
-    Serial.println(imu_index_f.beginI2C(i2cAddress1, i2c2));
-    // Not connected, inform user
-    Serial.println("Error: BMI270 in index finger is not connected, error code is printed aboved!");
-
-    // Wait a bit to see if connection is established
-    delay(1000);
-  }
-  Serial.println("BMI270 in the index finger is connected!");
-
-  while (imu_thumb_f.beginI2C(i2cAddress2, i2c2) != BMI2_OK) {
-    Serial.println(imu_thumb_f.beginI2C(i2cAddress2, i2c2));
-    // Not connected, inform user
-    Serial.println("Error: BMI270 in thumb finger is not connected,  error code is printed aboved!");
-
-    // Wait a bit to see if connection is established
-    delay(1000);
-  }
-  Serial.println("BMI270 in the thumb finger is connected!");
-
-  // Set accelerometer config
-  accelConfig.type = BMI2_ACCEL;
-  accelConfig.cfg.acc.odr = ACC_ODR;
-  accelConfig.cfg.acc.bwp = ACC_BWP;
-  accelConfig.cfg.acc.filter_perf = FILTER_MODE;
-  accelConfig.cfg.acc.range = ACC_RANGE;
-  while (imu_middle_f.setConfig(accelConfig) != BMI2_OK) {
-    Serial.println("Accelerometer config for middle fingle not valid!");
-    Serial.println(imu_middle_f.setConfig(accelConfig));
-    delay(1000);
-  }
-  while (imu_index_f.setConfig(accelConfig) != BMI2_OK) {
-    Serial.println("Accelerometer config for index fingle not valid!");
-    Serial.println(imu_index_f.setConfig(accelConfig));
-    delay(1000);
-  }
-  while (imu_thumb_f.setConfig(accelConfig) != BMI2_OK) {
-    Serial.println("Accelerometer config for thumb fingle not valid!");
-    Serial.println(imu_thumb_f.setConfig(accelConfig));
-    delay(1000);
-  }
-
-  // Set gyroscope config
-  gyroConfig.type = BMI2_GYRO;
-  gyroConfig.cfg.gyr.odr = GYRO_ODR;
-  gyroConfig.cfg.gyr.bwp = GYRO_BWP;
-  gyroConfig.cfg.gyr.filter_perf = FILTER_MODE;
-  gyroConfig.cfg.gyr.range = GYRO_RANGE;
-  gyroConfig.cfg.gyr.noise_perf = FILTER_MODE;
-  while (imu_middle_f.setConfig(gyroConfig) != BMI2_OK) {
-    Serial.println("Gyroscope config for middle fingle not valid!");
-    Serial.println(imu_middle_f.setConfig(gyroConfig));
-    delay(1000);
-  }
-  while (imu_index_f.setConfig(gyroConfig) != BMI2_OK) {
-    Serial.println("Gyroscope config for index fingle not valid!");
-    Serial.println(imu_index_f.setConfig(gyroConfig));
-    delay(1000);
-  }
-  while (imu_thumb_f.setConfig(gyroConfig) != BMI2_OK) {
-    Serial.println("Gyroscope config for thumb fingle not valid!");
-    Serial.println(imu_thumb_f.setConfig(gyroConfig));
-    delay(1000);
-  }
-
-  Serial.println("Configuration valid!");
-
-  // Initialize interupt pin
-  struct bmi2_int_pin_config interruptConfig;
-
-  imu_middle_f.mapInterruptToPin(BMI2_DRDY_INT, BMI2_INT1);
-  imu_index_f.mapInterruptToPin(BMI2_DRDY_INT, BMI2_INT1);
-  imu_thumb_f.mapInterruptToPin(BMI2_DRDY_INT, BMI2_INT1);
-
-  interruptConfig.pin_type = BMI2_INT1;
-  interruptConfig.int_latch = BMI2_INT_NON_LATCH;
-  interruptConfig.pin_cfg[0].output_en = BMI2_INT_OUTPUT_ENABLE;
-  interruptConfig.pin_cfg[0].od = BMI2_INT_PUSH_PULL;
-  interruptConfig.pin_cfg[0].lvl = BMI2_INT_ACTIVE_LOW;
-  interruptConfig.pin_cfg[0].input_en = BMI2_INT_INPUT_DISABLE;
-
-  imu_middle_f.setInterruptPinConfig(interruptConfig);
-  imu_index_f.setInterruptPinConfig(interruptConfig);
-  imu_thumb_f.setInterruptPinConfig(interruptConfig);
-
-  attachInterrupt(INT_PIN, handleInterrupt, RISING);
-
-  Serial.println("Settup interuptpin valid!");
-
-  // Calibration
-  Serial.println("Place the sensor on a flat surface and leave it stationary.");
-  // Serial.println("Enter any key to begin calibration.");
-
-  // // Throw away any previous inputs
-  // while (Serial.available() != 0) { Serial.read(); }
-  // // Wait for user input
-  // while (Serial.available() == 0) {}
-
-  // Perform component retrim for the gyroscope. According to the datasheet,
-  // the gyroscope has a typical error of 2%, but running the CRT can reduce
-  // that error to 0.4%
-  Serial.println("Performing component retrimming...");
-  imu_middle_f.performComponentRetrim();
-  imu_index_f.performComponentRetrim();
-  imu_thumb_f.performComponentRetrim();
-
-  // Perform offset calibration for both the accelerometer and IMU. This will
-  // automatically determine the offset of each axis of each sensor, and
-  // that offset will be subtracted from future measurements. Note that the
-  // offset resolution is limited for each sensor:
-  //
-  // Accelerometer offset resolution: 0.0039 g
-  // Gyroscope offset resolution: 0.061 deg/sec
-  Serial.println("Performing acclerometer offset calibration...");
-  imu_middle_f.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
-  imu_index_f.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
-  imu_thumb_f.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
-  Serial.println("Performing gyroscope offset calibration...");
-  imu_middle_f.performGyroOffsetCalibration();
-  imu_index_f.performGyroOffsetCalibration();
-  imu_thumb_f.performGyroOffsetCalibration();
-
-  // // Throw away any previous inputs
-  // while (Serial.available() != 0) { Serial.read(); }
-  // // Wait for user input
-  // while (Serial.available() == 0) {}
-
-  // // Check to see if user wants to save values to NVM
-  // if (Serial.read() == 'Y') {
-  //   Serial.println();
-  //   Serial.println("!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!");
-  //   Serial.println();
-  //   Serial.println("The BMI270's NVM only supports 14 write cycles TOTAL!");
-  //   Serial.println("Are you sure you want to save to the NVM? If so, enter 'Y' again");
-
-  //   // Throw away any previous inputs
-  //   while (Serial.available() != 0) { Serial.read(); }
-  //   // Wait for user input
-  //   while (Serial.available() == 0) {}
-
-  //   // Check to see if user really wants to save values to NVM
-  //   if (Serial.read() == 'Y') {
-  //     // Save NVM contents
-  //     int8_t err = imu_middle_f.saveNVM();
-
-  //     // Check to see if the NVM saved successfully
-  //     if (err == BMI2_OK) {
-  //       Serial.println();
-  //       Serial.println("Calibration values have been saved to the NVM!");
-  //     } else {
-  //       Serial.print("Error saving to NVM, error code: ");
-  //       Serial.println(err);
-  //     }
-  //   }
-  // }
-  Serial.println("Calibration done! Start collecting data!");
-
-  delay(1);
-
-  // Setting up the waitingTime
-  delayTimeForwaiting = esp_timer_get_time();
-
-  pinMode(TOUCH_PIN, INPUT);
+// Setup configuration for Accel Sensor
+bmi2_sens_config& setConfigAccel(bmi2_sens_config* accelConfig) {
+  accelConfig->type = BMI2_ACCEL;
+  accelConfig->cfg.acc.odr = ACC_ODR;
+  accelConfig->cfg.acc.bwp = ACC_BWP;
+  accelConfig->cfg.acc.filter_perf = FILTER_MODE;
+  accelConfig->cfg.acc.range = ACC_RANGE;
+  return *accelConfig;
 }
 
-void loop() {
 
-  // Update timer
-  startTime = esp_timer_get_time();
+// Setup configuration for Gyro Sensor
+bmi2_sens_config& setConfigGyro(bmi2_sens_config* gyroConfig) {
+  gyroConfig->type = BMI2_GYRO;
+  gyroConfig->cfg.gyr.odr = GYRO_ODR;
+  gyroConfig->cfg.gyr.bwp = GYRO_BWP;
+  gyroConfig->cfg.gyr.filter_perf = FILTER_MODE;
+  gyroConfig->cfg.gyr.range = GYRO_RANGE;
+  gyroConfig->cfg.gyr.noise_perf = FILTER_MODE;
+  return *gyroConfig;
+}
 
-  touch_val = digitalRead(TOUCH_PIN);
 
-  if (touch_val == 1) {
-    while (imu_middle_f.getSensorData() != BMI2_OK) {
-      Serial.println(imu_middle_f.getSensorData());
-      Serial.print("Error collecting data on middle finger");
-    }
-    // Print acceleration data
-    // Serial.print("AX: ");
-    Serial.print(imu_middle_f.data.accelX);
-    Serial.print(", ");
-    Serial.print(imu_middle_f.data.accelY);
-    Serial.print(", ");
-    Serial.print(imu_middle_f.data.accelZ);
-
-    // Print rotation data
-    Serial.print(", ");
-    Serial.print(imu_middle_f.data.gyroX);
-    Serial.print(", ");
-    Serial.print(imu_middle_f.data.gyroY);
-    Serial.print(", ");
-    Serial.print(imu_middle_f.data.gyroZ);
-
-    while (imu_index_f.getSensorData() != BMI2_OK) {
-      Serial.println(imu_index_f.getSensorData());
-      Serial.print("Error collecting data on index finger");
-    }
-    // Print acceleration data
-    Serial.print(", ");
-    Serial.print(imu_index_f.data.accelX);
-    Serial.print(", ");
-    Serial.print(imu_index_f.data.accelY);
-    Serial.print(", ");
-    Serial.print(imu_index_f.data.accelZ);
-
-    // Print rotation data
-    Serial.print(", ");
-    Serial.print(imu_index_f.data.gyroX);
-    Serial.print(", ");
-    Serial.print(imu_index_f.data.gyroY);
-    Serial.print(", ");
-    Serial.print(imu_index_f.data.gyroZ);
-
-    while (imu_thumb_f.getSensorData() != BMI2_OK) {
-      Serial.println(imu_thumb_f.getSensorData());
-      Serial.print("Error collecting data on thumb finger");
-    }
-    Serial.print(", ");
-    Serial.print(imu_thumb_f.data.accelX);
-    Serial.print(", ");
-    Serial.print(imu_thumb_f.data.accelY);
-    Serial.print(", ");
-    Serial.print(imu_thumb_f.data.accelZ);
-
-    // Print rotation data
-    Serial.print(", ");
-    Serial.print(imu_thumb_f.data.gyroX);
-    Serial.print(", ");
-    Serial.print(imu_thumb_f.data.gyroY);
-    Serial.print(", ");
-    Serial.println(imu_thumb_f.data.gyroZ);
-
-    delayTimeForwaiting = esp_timer_get_time();
-    // }
-
-    // Enter saving power after time
-    if (delayTimeForwaiting - startTime > waitingTimeBeforePowerDown) {
-      // do something
-    }
-  }
-
-  // Get measurements from the sensor. This must be called before accessing
-  // the sensor data, otherwise it will never update
-  // if (interruptOccurred) {
-
-  // interruptOccurred = false;
+// Setup configuration for Interupt Pin Sensor
+bmi2_int_pin_config& setConfigInterupt(bmi2_int_pin_config* intConfig) {
+  intConfig->pin_type = BMI2_INT1;
+  intConfig->int_latch = BMI2_INT_NON_LATCH;
+  intConfig->pin_cfg[0].output_en = BMI2_INT_OUTPUT_ENABLE;
+  intConfig->pin_cfg[0].od = BMI2_INT_PUSH_PULL;
+  intConfig->pin_cfg[0].lvl = BMI2_INT_ACTIVE_LOW;
+  intConfig->pin_cfg[0].input_en = BMI2_INT_INPUT_DISABLE;
+  return *intConfig;
 }

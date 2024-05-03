@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Basically done?">
-      <change beforePath="$PROJECT_DIR$/model/wifi_connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/wifi_connect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/helper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -256,7 +259,8 @@
       <option name="presentableId" value="Default" />
       <updated>1713481503884</updated>
       <workItem from="1714698401527" duration="28679000" />
-      <workItem from="1714743922097" duration="447000" />
+      <workItem from="1714743922097" duration="3207000" />
+      <workItem from="1714763679855" duration="5287000" />
     </task>
     <task id="LOCAL-00001" summary="Relocating data files">
       <option name="closed" value="true" />
@@ -442,7 +446,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714744199599</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Basically done?">
+      <option name="closed" value="true" />
+      <created>1714744507626</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1714744507626</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -475,8 +487,8 @@
     <option name="LAST_COMMIT_MESSAGE" value="Basically done?" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/GestureXR$test.coverage" NAME="test Coverage Results" MODIFIED="1714741318426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model" />
+    <SUITE FILE_PATH="coverage/GestureXR$test.coverage" NAME="test Coverage Results" MODIFIED="1714769787181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model" />
     <SUITE FILE_PATH="coverage/GestureXR$data_preprocess.coverage" NAME="data_preprocess Coverage Results" MODIFIED="1714737967424" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model/data" />
-    <SUITE FILE_PATH="coverage/GestureXR$wifi_connect.coverage" NAME="wifi_connect Coverage Results" MODIFIED="1714744093699" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model" />
+    <SUITE FILE_PATH="coverage/GestureXR$wifi_connect.coverage" NAME="wifi_connect Coverage Results" MODIFIED="1714746255795" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model" />
   </component>
 </project>

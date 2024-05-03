@@ -58,6 +58,9 @@ public:
     return accelValue * dt;
   }
 
+  void setPosition() {
+  }
+
   // Return the Vector3 position value (x, y, z)
   Vector3 getPosition() {
     return this->position;
@@ -121,10 +124,10 @@ public:
     Serial.print("Performing component retrimming for ");
     Serial.println(this->name);
     this->imu.performComponentRetrim();
-    Serial.println("Performing acclerometer offset calibration for ");
+    Serial.print("Performing acclerometer offset calibration for ");
     Serial.println(this->name);
     this->imu.performAccelOffsetCalibration(BMI2_GRAVITY_POS_Z);
-    Serial.println("Performing gyroscope offset calibration for ");
+    Serial.print("Performing gyroscope offset calibration for ");
     Serial.println(this->name);
     this->imu.performGyroOffsetCalibration();
   }
@@ -173,6 +176,7 @@ struct bmi2_int_pin_config interruptConfig;
 
 // Flag to know when interrupts occur
 volatile bool interruptOccurred = false;
+uint8_t touchVal = 0;
 
 TwoWire i2cBus1 = TwoWire(0);
 TwoWire i2cBus2 = TwoWire(1);
@@ -219,9 +223,9 @@ void setup() {
 
 void loop() {
 
-  touch_val = digitalRead(TOUCH_PIN);
+  touchVal = digitalRead(TOUCH_PIN);
 
-  if (touch_val) {
+  if (touchVal) {
     middleFinger.getRawData();
     // indexFinger.getRawData();
     // thumbFinger.getRawData();

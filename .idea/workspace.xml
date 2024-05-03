@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="Fixing source.ino, add Finger Class and position relative">
+      <change beforePath="$PROJECT_DIR$/source/source.ino" beforeDir="false" afterPath="$PROJECT_DIR$/source/source.ino" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Phickies&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Phickies/GestureXR.git&quot;,
+    &quot;accountId&quot;: &quot;cf8cbfb0-171e-4f2d-9fd1-8b17f876751b&quot;
+  }
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2fIH7LP3vkPgDa8xhnD0RFbMt4Z" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Python.data_collection.executor": "Run",
+    "Python.data_preprocess.executor": "Run",
+    "Python.test.executor": "Run",
+    "Python.testing.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/culop/PycharmProjects/GestureXR/model/data",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editor.preferences.import",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\culop\PycharmProjects\GestureXR\model\data" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\culop\PycharmProjects\GestureXR\model\data" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
+        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="19ddb3ba-9f8e-442b-b181-f8d4a8f757d9" name="Changes" comment="" />
+      <created>1713481503884</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1713481503884</updated>
+      <workItem from="1714698401527" duration="876000" />
+    </task>
+    <task id="LOCAL-00001" summary="Relocating data files">
+      <option name="closed" value="true" />
+      <created>1713482763751</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1713482763751</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Relocating data files">
+      <option name="closed" value="true" />
+      <created>1713482811936</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1713482811936</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fixing data">
+      <option name="closed" value="true" />
+      <created>1713485481129</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1713485481129</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Fixing data">
+      <option name="closed" value="true" />
+      <created>1713485530273</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1713485530273</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1713487957209</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1713487957209</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1713488026118</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1713488026118</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1713494059755</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1713494059755</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1713494094586</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1713494094586</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1713494984028</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1713494984028</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Done preprocessing data">
+      <option name="closed" value="true" />
+      <created>1714649918829</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1714649918829</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Clean data">
+      <option name="closed" value="true" />
+      <created>1714649936355</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1714649936355</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Add MLPClassifier">
+      <option name="closed" value="true" />
+      <created>1714654847486</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1714654847486</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Fixing source.ino, add Finger Class and position relative">
+      <option name="closed" value="true" />
+      <created>1714699064904</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1714699064904</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Add function to change the dataset from string to int" />
+    <MESSAGE value="Relocating data files" />
+    <MESSAGE value="Fixing data" />
+    <MESSAGE value="Done preprocessing data" />
+    <MESSAGE value="Clean data" />
+    <MESSAGE value="Add MLPClassifier" />
+    <MESSAGE value="Fixing source.ino, add Finger Class and position relative" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixing source.ino, add Finger Class and position relative" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/GestureXR$test.coverage" NAME="test Coverage Results" MODIFIED="1714658059476" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model" />
+  </component>
+</project>

@@ -1,4 +1,6 @@
 
+Project report: https://github.com/Phickies/GestureXR/main/ProjectReort.pdf
+
 A interactive controller hand gesture tracker implement Deep Learning for extracting command
 
 go to the library, add this line of code to the getSensorData function:

@@ -1,54 +1,9 @@
+Project report: [pdf file](https://github.com/Phickies/GestureXR/blob/main/ProjectReport.pdf)
 
-Project report: https://github.com/Phickies/GestureXR/main/ProjectReort.pdf
+# Directory Introduction
 
-A interactive controller hand gesture tracker implement Deep Learning for extracting command
+This is the directory for the GestureXR, including sources code for the main hardware, AI model training, and building skeletons, project report and raw data.
 
-go to the library, add this line of code to the getSensorData function:
+# Project Introduction
 
-/// @brief Gets data from the sensor. Must be called to update the data struct
-/// @return Error code (0 is success, negative is failure, positive is warning)
-int8_t BMI270::getSensorData()
-{
-    // Variable to track errors returned by API calls
-    int8_t err = BMI2_OK;
-
-    // Get raw data from sensor
-    bmi2_sens_data rawData;
-    err = bmi2_get_sensor_data(&rawData, &sensor);
-    if(err != BMI2_OK) return err;
-
-    data.accelX = rawData.acc.x;
-    data.accelY = rawData.acc.y;
-    data.accelZ = rawData.acc.z;
-
-    data.gyroX = rawData.gyr.x;
-    data.gyroY = rawData.gyr.y;
-    data.gyroZ = rawData.gyr.z;
-
-    // Convert raw data to g's and deg/sec
-    // convertRawData(&rawData, &data);
-
-    return BMI2_OK;
-}
-
-
-After that, go to the header file of the library and change the variable type of <struct BMI270_SensorData> to int16_t
-
-struct BMI270_SensorData
-{
-    // Acceleration in g's
-    int16_t accelX;
-    int16_t accelY;
-    int16_t accelZ;
-
-    // Rotation in deg/sec
-    int16_t gyroX;
-    int16_t gyroY;
-    int16_t gyroZ;
-
-    // Auxiliary sensor data, raw bytes
-    uint8_t auxData[BMI2_AUX_NUM_BYTES];
-
-    // Time of this data in milliseconds, measured by sensor
-    uint32_t sensorTimeMillis;
-};
+The idea started with making a holographic tap track glove. The design is based on the most advanced Tap Strap 2 product for gesture keyboards (Tap strap 2 2024), the gesture is inspired by Apple Vision Pro Gestures, an advanced gesture recognition product that can recognize different gestures [2]. This interaction was inspired by the holographic table scene in the Iron Man movie[3] where the main character interacts with the holographic table to prototype his super armor by hand. Our goal is to replicate the most accurate interactions, just like in the movies. We designed a three-finger glove to interact with 3D objects in real-time through different IMUs (Inertial Measurement Units, a unit that measures body movement through acceleration and rotation) [1] attached to the fingertips. Users can grab, rotate, zoom in, zoom out, detach, and build objects with their hands or custom gestures to control virtual objects or extend use for any IoT devices. We built a prototype with 3 IMUs units attached to the finger of the user and a smaller version of the ESP32 S3 chip, which collected the data from the IMU and preprocessed it. By using a combination of a Long Short Term Memory deep learning model and a Convolutional Neural Network Model (CNN), we  train with the collected data and test it using scikit-learn model evaluation score metric. After training, the model is imported back into the ESP32 S3 chip to act as an edge device, allowing it to recognize gestures and interact with 3D objects in real time. For the visualizing and representing our product, we plan to use Unity to create a 3D space with floating materials and objects represented as a holographic interactive model. The predicted data we got from the ESP32 S3 chip will be sent to Unity using Wi-Fi.  The application for this project aims to create the first prototype for fast, visually real time prototyping for mechanical engineers or industrial designers who need to brainstorm, and real time prototyping within a team.
